@@ -9,16 +9,21 @@ var parseMeta = function (url, body) {
     var $ = cheerio.load(body);
     var title = $('title').text();
     var charset = $("meta[charset]").attr("charset");
-
+    var imagehash = {};
     var images = $('img').map(function (i, elem) {
         var src = $(this).attr('src');
         return URI.resolve(url, src);
     }).filter(function (e) {
         return (e.match(/\.(jpeg|jpg|gif|png|JPEG|JPG|GIF|PNG)$/) != null)
+    }).filter(function (item) {
+        return imagehash.hasOwnProperty(item) ? false : (imagehash[item] = true);
     });
+    var linkhash = {};
     var links = $('a').map(function (i, elem) {
         var href = $(this).attr('href');
         return URI.resolve(url, href);
+    }).filter(function (item) {
+        return linkhash.hasOwnProperty(item) ? false : (linkhash[item] = true);
     });
 
     var meta = $('meta'),
