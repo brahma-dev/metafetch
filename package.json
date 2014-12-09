@@ -1,0 +1,33 @@
+{
+    "name": "metafetch",
+    "description": "Metafetch fetches a given URL's title, description, images, links etc.",
+    "version": "1.0.0",
+    "homepage": "https://github.com/afzaalace/metafetch",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/afzaalace/metafetch.git"
+    },
+    "author": "afzaalace",
+    "keywords": ["meta", "graph", "tags", "description", "images"],
+    "main": "index",
+    "dependencies": {
+        "cheerio": "0.10.8",
+        "uri-js": "1.4.2",
+        "restler": "~3.2.2",
+        "lodash": "~2.4.1"
+    },
+    "devDependencies": {
+        "mocha": "*",
+        "should": "*"
+    },
+    "scripts": {
+        "test": "mocha test --timeout 20s"
+    },
+    "engines": {
+        "node": ">= 0.4.0"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/afzaalace/metafetch/issues"
+    }
+}
