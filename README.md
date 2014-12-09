@@ -14,7 +14,7 @@ Use NPM to install:
 
     var metafetch = require('metafetch');
 
-    metafetch.fetch('http://www.facebook.com'[, flags], function(err, meta) {
+    metafetch.fetch('http://www.facebook.com'[, options], function(err, meta) {
         console.log('title: ', meta.title);
         console.log('description: ', meta.description);
         console.log('type: ', meta.type);
@@ -27,9 +27,9 @@ Use NPM to install:
         console.log('links: ', meta.links);
     });
     
-    // Flags to disable parsing images and links
+    // Optional flags to disable parsing images and links and http request options for [restler](https://github.com/danwrong/restler)
     
-    metafetch.fetch('http://www.facebook.com', { images: false, links: false }, function(err, meta) {
+    metafetch.fetch('http://www.facebook.com', { flags: { images: false, links: false }, http: { timeout: 30000 } }, function(err, meta) {
         console.log('title: ', meta.title);
         console.log('description: ', meta.description);
         console.log('type: ', meta.type);
