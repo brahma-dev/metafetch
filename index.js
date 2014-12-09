@@ -13,6 +13,8 @@ var parseMeta = function (url, body) {
     var images = $('img').map(function (i, elem) {
         var src = $(this).attr('src');
         return URI.resolve(url, src);
+    }).filter(function (e) {
+        return (e.match(/\.(jpeg|jpg|gif|png|JPEG|JPG|GIF|PNG)$/) != null)
     });
     var links = $('a').map(function (i, elem) {
         var href = $(this).attr('href');
