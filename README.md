@@ -14,12 +14,32 @@ Use NPM to install:
 
     var metafetch = require('metafetch');
 
-    metafetch.fetch('http://www.facebook.com', function(err, meta) {
+    metafetch.fetch('http://www.facebook.com'[, flags], function(err, meta) {
         console.log('title: ', meta.title);
         console.log('description: ', meta.description);
-        console.log('image: ', meta.image);
+        console.log('type: ', meta.type);
         console.log('url: ', meta.url);
+        console.log('siteName: ', meta.siteName);
+        console.log('charset: ', meta.charset);
+        console.log('image: ', meta.image);
+        console.log('meta: ', meta.meta);
+        console.log('images: ', meta.images);
+        console.log('links: ', meta.links);
     });
+    
+    // Flags to disable parsing images and links
+    
+    metafetch.fetch('http://www.facebook.com', { images: false, links: false }, function(err, meta) {
+        console.log('title: ', meta.title);
+        console.log('description: ', meta.description);
+        console.log('type: ', meta.type);
+        console.log('url: ', meta.url);
+        console.log('siteName: ', meta.siteName);
+        console.log('charset: ', meta.charset);
+        console.log('image: ', meta.image);
+        console.log('meta: ', meta.meta);
+    });
+    
 
 ### Response Data
 
