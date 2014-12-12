@@ -49,7 +49,7 @@ Use NPM to install:
 * `url` : Page url or `og:url` meta tag.
 * `uri` : Page uri object, parsed by [uri-js](https://github.com/garycourt/uri-js).
 * `images` : All images on this page.
-* `images` : All links on this page.
+* `links` : All links on this page.
 * `meta` : All the meta tags that with a `property` or `name` attribute. e.g `<meta property="author" content="Example">`, `<meta name="description" content="Example.">`
 
 ## License ##
