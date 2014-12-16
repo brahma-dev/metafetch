@@ -67,8 +67,13 @@ var parseMeta = function (url, options, body) {
 };
 
 Client.fetch = function (url, options, callback) {
+    var random_ua = require('modern-random-ua');
     var http_options = {
-        timeout: 20000
+        timeout: 20000,
+        headers: {
+            'Accept': '*/*',
+            'User-Agent': random_ua.generate()
+        }
     }
     var _options = {
         title: true,
