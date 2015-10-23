@@ -17,8 +17,8 @@ var parseMeta = function (url, options, body) {
         response['images'] = $('img').map(function (i, elem) {
             var src = $(this).attr('src');
             return URI.resolve(url, src);
-        }).filter(function (e) {
-            return (e.match(/\.(jpeg|jpg|gif|png|JPEG|JPG|GIF|PNG)$/) != null)
+        }).filter(function (e,f) {
+            return (f.match(/\.(jpeg|jpg|gif|png|JPEG|JPG|GIF|PNG)$/) != null)
         }).filter(function (item) {
             return imagehash.hasOwnProperty(item) ? false : (imagehash[item] = true);
         });
