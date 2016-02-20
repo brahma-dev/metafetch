@@ -4,14 +4,12 @@ var should = require('should'),
 
 describe('fetchog', function () {
     describe('#fetch()', function () {
-        it('should get a meta without error from yahoo.com', function (done) {
-            fetchog.fetch('https://www.yahoo.com', function (err, meta) {
+        it('should get a meta without error from ecoswarm.com', function (done) {
+            fetchog.fetch('http://ecoswarm.com/afzaalace', function (err, meta) {
                 should.not.exist(err);
                 should.exist(meta);
-                should.exist(meta.title);
-                meta.title.should.equal('Yahoo');
                 should.exist(meta.uri);
-                meta.uri.host.should.equal('www.yahoo.com');
+                meta.uri.host.should.equal('www.ecoswarm.com');
                 //console.log('meta', meta);
                 done();
             });

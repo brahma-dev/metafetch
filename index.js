@@ -35,8 +35,15 @@ var parseMeta = function(url, options, body) {
 		var linkhash = {};
 		response.links = $('a').map(function() {
 			var href = $(this).attr('href');
-			return URI.resolve(url, href);
+			if (href && href.length && href[0] !== "#") {
+				return URI.resolve(url, href);
+			} else {
+				return -1;
+			}
 		}).filter(function(item) {
+			if (item === -1) {
+				return false;
+			}
 			return linkhash.hasOwnProperty(item) ? false : (linkhash[item] = true);
 		});
 	}
@@ -93,7 +100,8 @@ Client.fetch = function(url, options, callback) {
 		headers: {
 			'Accept': '*/*',
 			'User-Agent': random_ua.generate()
-		}
+		},
+		followRedirects: false
 	};
 	var _options = {
 		title: true,
@@ -113,16 +121,25 @@ Client.fetch = function(url, options, callback) {
 		_.merge(http_options, options.http || {});
 		_.merge(_options, options.flags || {});
 	}
-	rest.get(url, http_options).on('complete', function(result) {
-		if (result instanceof Error) {
-			callback(result);
-		} else {
-			var meta = parseMeta(url, _options, result);
-			callback(null, meta);
-		}
-	}).on('timeout', function() {
-		callback('Timeout');
-	});
+	var redirectCount = 0;
+	var r = function() {
+		rest.get(url, http_options).on('complete', function(result, response) {
+			if (result instanceof Error) {
+				callback(result);
+			} else {
+				if (response.statusCode === 200) {
+					var meta = parseMeta(url, _options, result);
+					callback(null, meta);
+				}
+			}
+		}).on('3XX', function(data, res) {
+			url = res.headers.location;
+			return r();
+		}).on('timeout', function() {
+			callback('Timeout');
+		});
+	}
+	r();
 };
 
 module.exports = Client;
