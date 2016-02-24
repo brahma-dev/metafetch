@@ -1,5 +1,7 @@
 # Node [metafetch](https://www.npmjs.org/package/metafetch) [![Build Status](https://travis-ci.org/afzaalace/metafetch.svg?branch=master)](https://travis-ci.org/afzaalace/metafetch)
 
+[![Join the chat at https://gitter.im/afzaalace/metafetch](https://badges.gitter.im/afzaalace/metafetch.svg)](https://gitter.im/afzaalace/metafetch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Metafetch fetches a given URL's title, description, images, links etc.
 
 [![NPM](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)
