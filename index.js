@@ -139,11 +139,11 @@ Client.fetch = function(url, options, callback) {
 					return callback("Too many redirects");
 				}
 				url = res.headers.location;
-				return r();
+				return pdf();
 			}).on('timeout', function() {
 				callback('Timeout');
 			});
-		}
+		};
 		pdf();
 	} else {
 		var text = function() {
@@ -162,11 +162,11 @@ Client.fetch = function(url, options, callback) {
 					return callback("Too many redirects");
 				}
 				url = res.headers.location;
-				return r();
+				return text();
 			}).on('timeout', function() {
 				callback('Timeout');
 			});
-		}
+		};
 		text();
 	}
 };
