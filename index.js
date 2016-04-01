@@ -94,6 +94,7 @@ Client.fetch = function(url, options, callback) {
 		}
 		return;
 	}
+	url = url.split("#")[0]; //Remove any anchor fragments
 	var random_ua = require('modern-random-ua');
 	var http_options = {
 		timeout: 20000,
