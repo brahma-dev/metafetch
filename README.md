@@ -1,4 +1,4 @@
-# Node [metafetch](https://www.npmjs.org/package/metafetch)
+# Node [metafetch](https://www.npmjs.org/package/metafetch) [![Build Status](https://travis-ci.org/afzaalace/metafetch.svg?branch=master)](https://travis-ci.org/afzaalace/metafetch)
 
 Metafetch fetches a given URL's title, description, images, links etc.
 
