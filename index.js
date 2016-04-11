@@ -132,6 +132,8 @@ Client.fetch = function(url, options, callback) {
 					if (response.statusCode === 200) {
 						var meta = parseMeta(url, _options, result);
 						callback(null, meta);
+					} else {
+						callback(response.statusCode);
 					}
 				}
 			}).on('3XX', function(data, res) {
@@ -155,6 +157,8 @@ Client.fetch = function(url, options, callback) {
 					if (response.statusCode === 200) {
 						var meta = parseMeta(url, _options, result);
 						callback(null, meta);
+					} else {
+						callback(response.statusCode);
 					}
 				}
 			}).on('3XX', function(data, res) {
