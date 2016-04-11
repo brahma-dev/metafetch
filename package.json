@@ -1,7 +1,7 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "homepage": "https://github.com/afzaalace/metafetch",
   "repository": {
     "type": "git",
