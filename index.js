@@ -127,13 +127,13 @@ Client.fetch = function(url, options, callback) {
 		var pdf = function() {
 			rest.head(url, http_options).on('complete', function(result, response) {
 				if (result instanceof Error) {
-					callback(result);
+					return callback(result);
 				} else {
 					if (response.statusCode === 200) {
 						var meta = parseMeta(url, _options, result);
-						callback(null, meta);
-					} else {
-						callback(response.statusCode);
+						return callback(null, meta);
+					} else if (response.statusCode < 300 || response.statusCode > 399) {
+						return callback(response.statusCode);
 					}
 				}
 			}).on('3XX', function(data, res) {
@@ -152,13 +152,13 @@ Client.fetch = function(url, options, callback) {
 		var text = function() {
 			rest.get(url, http_options).on('complete', function(result, response) {
 				if (result instanceof Error) {
-					callback(result);
+					return callback(result);
 				} else {
 					if (response.statusCode === 200) {
 						var meta = parseMeta(url, _options, result);
-						callback(null, meta);
-					} else {
-						callback(response.statusCode);
+						return callback(null, meta);
+					} else if (response.statusCode < 300 || response.statusCode > 399) {
+						return callback(response.statusCode);
 					}
 				}
 			}).on('3XX', function(data, res) {
