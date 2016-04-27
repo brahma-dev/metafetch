@@ -1,4 +1,4 @@
-# Node [metafetch](https://www.npmjs.org/package/metafetch) [![Build Status](https://travis-ci.org/afzaalace/metafetch.svg?branch=master)](https://travis-ci.org/afzaalace/metafetch)
+# Node [metafetch](https://www.npmjs.org/package/metafetch) [![Build Status](https://travis-ci.org/afzaalace/metafetch.svg?branch=master)](https://travis-ci.org/afzaalace/metafetch) [![Dependency Status](https://david-dm.org/afzaalace/metafetch.svg)](https://david-dm.org/afzaalace/metafetch) [![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg)](https://snyk.io/test/npm/metafetch)
 
 Metafetch fetches a given URL's title, description, images, links etc.
 
