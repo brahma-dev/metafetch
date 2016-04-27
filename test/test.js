@@ -76,6 +76,27 @@ describe('fetchog', function() {
 				done();
 			});
 		});
+		it('should err', function(done) {
+			fetchog.fetch('http://nonexistentmisspelleddomani.ocm', {
+				http: {
+					timeout: 5000
+				}
+			}, function(err, meta) {
+				should.exist(err);
+				done();
+			});
+		});
+		it('should timeout', function(done) {
+			fetchog.fetch('http://nonexistentmisspelleddomani' + (new Date().getTime()) + '.ocm', {
+				http: {
+					timeout: 5
+				}
+			}, function(err, meta) {
+				should.exist(err);
+				err.should.equal("Timeout");
+				done();
+			});
+		});
 		it('should get a return 404 from ecoswarm.com', function(done) {
 			fetchog.fetch('http://ecoswarm.com/afzaalace/nonexistenturl.pdf', {
 				flags: {
@@ -116,6 +137,27 @@ describe('fetchog', function() {
 				}
 			}, function(err, meta) {
 				should.not.exist(err);
+				done();
+			});
+		});
+		it('should err', function(done) {
+			fetchog.fetch('http://nonexistentmisspelleddomani.ocm/test.pdf', {
+				http: {
+					timeout: 5000
+				}
+			}, function(err, meta) {
+				should.exist(err);
+				done();
+			});
+		});
+		it('should timeout', function(done) {
+			fetchog.fetch('http://nonexistentmisspelleddomani' + (new Date().getTime()) + '.ocm/test.pdf', {
+				http: {
+					timeout: 5
+				}
+			}, function(err, meta) {
+				should.exist(err);
+				err.should.equal("Timeout");
 				done();
 			});
 		});
