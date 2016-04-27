@@ -141,7 +141,7 @@ Client.fetch = function(url, options, callback) {
 				if (redirectCount > 5) {
 					return callback("Too many redirects");
 				}
-				url = res.headers.location;
+				url = URI.resolve(url, res.headers.location);
 				return pdf();
 			}).on('timeout', function() {
 				callback('Timeout');
@@ -166,7 +166,7 @@ Client.fetch = function(url, options, callback) {
 				if (redirectCount > 5) {
 					return callback("Too many redirects");
 				}
-				url = res.headers.location;
+				url = URI.resolve(url, res.headers.location);
 				return text();
 			}).on('timeout', function() {
 				callback('Timeout');
