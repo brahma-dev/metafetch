@@ -1,8 +1,14 @@
-# Node [metafetch](https://www.npmjs.org/package/metafetch) [![Build Status](https://travis-ci.org/afzaalace/metafetch.svg?branch=master)](https://travis-ci.org/afzaalace/metafetch) [![Dependency Status](https://david-dm.org/afzaalace/metafetch.svg)](https://david-dm.org/afzaalace/metafetch) [![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg)](https://snyk.io/test/npm/metafetch)
-
-Metafetch fetches a given URL's title, description, images, links etc.
+# Node [metafetch](https://www.npmjs.org/package/metafetch)
+[![Build Status](https://img.shields.io/travis/afzaalace/metafetch.svg?style=flat-square)](https://travis-ci.org/afzaalace/metafetch)
+[![Coverage](https://img.shields.io/codecov/c/github/afzaalace/metafetch.svg?style=flat-square)](https://codecov.io/github/afzaalace/metafetch?branch=master)
+[![Coverage](https://img.shields.io/coveralls/afzaalace/metafetch.svg?style=flat-square)](https://coveralls.io/github/afzaalace/metafetch?branch=master)
+[![Dependency Status](https://img.shields.io/bithound/dependencies/github/afzaalace/metafetch.svg?style=flat-square)](https://www.bithound.io/github/afzaalace/metafetch/master/dependencies/npm)
+[![Dev Dependencies Status](https://img.shields.io/bithound/devDependencies/github/afzaalace/metafetch.svg?style=flat-square)](https://www.bithound.io/github/afzaalace/metafetch/master/dependencies/npm)
+[![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg?style=flat-square)](https://snyk.io/test/npm/metafetch)
 
 [![NPM](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)
+
+Metafetch fetches a given URL's title, description, images, links etc.
 
 ## Installation ##
 

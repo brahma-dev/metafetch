@@ -1,7 +1,7 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "homepage": "https://github.com/afzaalace/metafetch",
   "repository": {
     "type": "git",
@@ -24,11 +24,14 @@
     "uri-js": "^2.1.1"
   },
   "devDependencies": {
-    "mocha": "*",
-    "should": "*"
+    "coveralls": "^2.11.9",
+    "istanbul": "^0.4.3",
+    "mocha": "^2.4.5",
+    "mocha-lcov-reporter": "^1.2.0",
+    "should": "^8.3.1"
   },
   "scripts": {
-    "test": "mocha test --timeout 20s"
+    "test": "mocha test --timeout 20s && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec"
   },
   "engines": {
     "node": ">= 0.4.0"

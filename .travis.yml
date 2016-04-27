@@ -4,3 +4,7 @@ node_js:
   - "4.0"
   - "0.12"
   - "iojs"
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - bash <(cat ./coverage/lcov.info | ./node_modules/.bin/coveralls)
+
