@@ -35,13 +35,13 @@ var parseMeta = function(url, options, body) {
 		var linkhash = {};
 		response.links = $('a').map(function() {
 			var href = $(this).attr('href');
-			if (href && href.length && href[0] !== "#") {
+			if (href && href.trim().length && href[0] !== "#") {
 				return URI.resolve(url, href);
 			} else {
-				return -1;
+				return 0;
 			}
 		}).filter(function(item) {
-			if (item === -1) {
+			if (item === 0) {
 				return false;
 			}
 			return linkhash.hasOwnProperty(item) ? false : (linkhash[item] = true);
@@ -88,12 +88,6 @@ var parseMeta = function(url, options, body) {
 };
 
 Client.fetch = function(url, options, callback) {
-	if (url === undefined || url === "") {
-		if (callback !== undefined) {
-			callback("Invalid URL", (url || ""));
-		}
-		return;
-	}
 	url = url.split("#")[0]; //Remove any anchor fragments
 	var random_ua = require('modern-random-ua');
 	var http_options = {
@@ -121,6 +115,12 @@ Client.fetch = function(url, options, callback) {
 	} else if (typeof options === 'object') {
 		_.merge(http_options, options.http || {});
 		_.merge(_options, options.flags || {});
+	}
+	if (url === undefined || url === "") {
+		if (callback !== undefined) {
+			callback("Invalid URL", (url || ""));
+		}
+		return;
 	}
 	var redirectCount = 0;
 	if (url.slice(-4) === ".pdf") {

@@ -32,9 +32,9 @@ Use NPM to install:
         console.log('images: ', meta.images);
         console.log('links: ', meta.links);
     });
-    
-    // Optional flags to disable parsing images and links and http request options for [restler](https://github.com/danwrong/restler)
-    
+
+Optional flags to disable parsing images and links and http request options for [restler](https://github.com/danwrong/restler)
+
     metafetch.fetch('http://www.facebook.com', { flags: { images: false, links: false }, http: { timeout: 30000 } }, function(err, meta) {
         console.log('title: ', meta.title);
         console.log('description: ', meta.description);
@@ -45,7 +45,6 @@ Use NPM to install:
         console.log('image: ', meta.image);
         console.log('meta: ', meta.meta);
     });
-    
 
 ### Response Data
 
