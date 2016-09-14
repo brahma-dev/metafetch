@@ -145,6 +145,9 @@ Client.fetch = function(url, options, callback) {
 					return pdf();
 				} else if (response.statusType === 2) {
 					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, body) {
+						if (err) {
+							return callback(err);
+						}
 						var meta = parseMeta(url, _options, "Metafetch does not support parsing PDF Content.");
 						return callback(null, meta);
 					});
@@ -172,6 +175,9 @@ Client.fetch = function(url, options, callback) {
 					return text();
 				} else if (response.statusType === 2) {
 					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, body) {
+						if (err) {
+							return callback(err);
+						}
 						var meta = parseMeta(url, _options, body.text);
 						return callback(null, meta);
 					});
