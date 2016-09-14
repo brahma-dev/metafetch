@@ -20,7 +20,8 @@
     "cheerio": "^0.20.0",
     "lodash": "^4.11.1",
     "modern-random-ua": "^1.0.3",
-    "restler": "^3.4.0",
+    "superagent": "^2.2.0",
+    "superagent-charset": "^1.1.1",
     "uri-js": "^2.1.1"
   },
   "devDependencies": {

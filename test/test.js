@@ -252,4 +252,16 @@ describe('server', function() {
 			done();
 		});
 	});
+	it('should fetch Non UTF encoding', function(done) {
+		fetchog.fetch('http://cafe.naver.com/joonggonara', {
+			http: {
+				timeout: 3000
+			}
+		}, function(err, meta) {
+			should.not.exist(err);
+			should.exist(meta);
+			should.exist(meta.uri);
+			done();
+		});
+	});
 });

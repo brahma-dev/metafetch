@@ -1,8 +1,11 @@
 var _ = require('lodash'),
 	cheerio = require('cheerio'),
-	rest = require('restler'),
+	charset = require('superagent-charset'),
+	rest = require('superagent'),
 	URI = require('uri-js'),
 	Client = {};
+
+charset(rest);
 
 var parseMeta = function(url, options, body) {
 	var uri = URI.parse(url);
@@ -125,51 +128,56 @@ Client.fetch = function(url, options, callback) {
 	var redirectCount = 0;
 	if (url.slice(-4) === ".pdf") {
 		var pdf = function() {
-			rest.head(url, http_options).on('complete', function(result, response) {
-				if (result instanceof Error) {
-					return callback(result);
-				} else {
-					if (response.statusCode === 200) {
-						var meta = parseMeta(url, _options, result);
-						return callback(null, meta);
-					} else if (response.statusCode < 300 || response.statusCode > 399) {
-						return callback(response.statusCode);
+			//TODO : PDF parsing
+			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
+				if (err && err.timeout) {
+					return callback("Timeout");
+				}
+				if (!!!response) {
+					return callback(err);
+				}
+				if (response.statusType === 3) {
+					redirectCount++;
+					if (redirectCount > 5) {
+						return callback("Too many redirects");
 					}
+					url = URI.resolve(url, response.headers.location);
+					return pdf();
+				} else if (response.statusType === 2) {
+					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, body) {
+						var meta = parseMeta(url, _options, "Metafetch does not support parsing PDF Content.");
+						return callback(null, meta);
+					});
+				} else {
+					return callback(err.status);
 				}
-			}).on('3XX', function(data, res) {
-				redirectCount++;
-				if (redirectCount > 5) {
-					return callback("Too many redirects");
-				}
-				url = URI.resolve(url, res.headers.location);
-				return pdf();
-			}).on('timeout', function() {
-				callback('Timeout');
 			});
 		};
 		pdf();
 	} else {
 		var text = function() {
-			rest.get(url, http_options).on('complete', function(result, response) {
-				if (result instanceof Error) {
-					return callback(result);
-				} else {
-					if (response.statusCode === 200) {
-						var meta = parseMeta(url, _options, result);
-						return callback(null, meta);
-					} else if (response.statusCode < 300 || response.statusCode > 399) {
-						return callback(response.statusCode);
+			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
+				if (err && err.timeout) {
+					return callback("Timeout");
+				}
+				if (!!!response) {
+					return callback(err);
+				}
+				if (response.statusType === 3) {
+					redirectCount++;
+					if (redirectCount > 5) {
+						return callback("Too many redirects");
 					}
+					url = URI.resolve(url, response.headers.location);
+					return text();
+				} else if (response.statusType === 2) {
+					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, body) {
+						var meta = parseMeta(url, _options, body.text);
+						return callback(null, meta);
+					});
+				} else {
+					return callback(err.status);
 				}
-			}).on('3XX', function(data, res) {
-				redirectCount++;
-				if (redirectCount > 5) {
-					return callback("Too many redirects");
-				}
-				url = URI.resolve(url, res.headers.location);
-				return text();
-			}).on('timeout', function() {
-				callback('Timeout');
 			});
 		};
 		text();
