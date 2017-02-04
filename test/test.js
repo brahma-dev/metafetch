@@ -66,8 +66,8 @@ describe('server', function () {
 		should.not.exist(err);
 		done();
 	});
-	it('should get a return 404 from linc.world', function (done) {
-		fetchog.fetch('http://linc.world/afzaalace/nonexistenturl', {
+	it('should get a return 404 from npmjs.com', function (done) {
+		fetchog.fetch('https://npmjs.com/~afzaalace/nonexistenturl', {
 			flags: {
 				images: false,
 				links: false
@@ -78,8 +78,8 @@ describe('server', function () {
 			done();
 		});
 	});
-	it('should get a meta without error from linc.world', function (done) {
-		fetchog.fetch('http://linc.world/afzaalace#someanchor', {
+	it('should get a meta without error from npmjs.com', function (done) {
+		fetchog.fetch('https://npmjs.com/~afzaalace#someanchor', {
 			flags: {
 				images: false,
 				links: false
@@ -91,12 +91,12 @@ describe('server', function () {
 			should.not.exist(err);
 			should.exist(meta);
 			should.exist(meta.uri);
-			meta.uri.host.should.equal('www.linc.world');
+			meta.uri.host.should.equal('www.npmjs.com');
 			done();
 		});
 	});
-	it('should get a meta without error from linc.world', function (done) {
-		fetchog.fetch('http://linc.world/afzaalace#someanchor', {
+	it('should get a meta without error from npmjs.com', function (done) {
+		fetchog.fetch('https://npmjs.com/~afzaalace#someanchor', {
 			flags: {
 				title: false,
 				description: false,
@@ -116,16 +116,16 @@ describe('server', function () {
 			should.not.exist(err);
 			should.exist(meta);
 			should.exist(meta.uri);
-			meta.uri.host.should.equal('www.linc.world');
+			meta.uri.host.should.equal('www.npmjs.com');
 			done();
 		});
 	});
-	it('should get a meta without error from linc.world', function (done) {
-		fetchog.fetch('http://linc.world/afzaalace#someanchor', function (err, meta) {
+	it('should get a meta without error from npmjs.com', function (done) {
+		fetchog.fetch('http://npmjs.com/~afzaalace#someanchor', function (err, meta) {
 			should.not.exist(err);
 			should.exist(meta);
 			should.exist(meta.uri);
-			meta.uri.host.should.equal('www.linc.world');
+			meta.uri.host.should.equal('www.npmjs.com');
 			done();
 		});
 	});
@@ -199,8 +199,8 @@ describe('server', function () {
 			done();
 		});
 	});
-	it('should get a return 404 from linc.world', function (done) {
-		fetchog.fetch('http://linc.world/afzaalace/nonexistenturl.pdf', {
+	it('should get a return 404 from npmjs.com', function (done) {
+		fetchog.fetch('http://npmjs.com/afzaalace/nonexistenturl.pdf', {
 			flags: {
 				images: false,
 				links: false

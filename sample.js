@@ -16,7 +16,7 @@ metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-to
 	console.log('Links: ', meta.links);
 });
 
-/* Optional flags to disable parsing images and links and http request options for restler
+/* Optional flags to disable parsing images and links and http timeout or headers
 
 metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-towing-capability-dual-motors-falcon-wing-doors-etc.html', {
 	flags: {
