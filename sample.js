@@ -1,35 +1,41 @@
-var metafetch = require('./index');
+var metafetch = require('metafetch');
 
 metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-towing-capability-dual-motors-falcon-wing-doors-etc.html', function (err, meta) {
-    console.log('title: ', meta.title);
-    console.log('description: ', meta.description);
-    console.log('type: ', meta.type);
-    console.log('url: ', meta.url);
-    console.log('siteName: ', meta.siteName);
-    console.log('charset: ', meta.charset);
-    console.log('image: ', meta.image);
-    console.log('meta: ', meta.meta);
-    console.log('images: ', meta.images);
-    console.log('links: ', meta.links);
+	if (err) {
+		return console.error(err);
+	}
+	console.log('Title: ', meta.title);
+	console.log('Description: ', meta.description);
+	//console.log('Type: ', meta.type);
+	console.log('URL: ', meta.url);
+	//console.log('SiteName: ', meta.siteName);
+	//console.log('Charset: ', meta.charset);
+	console.log('Image: ', meta.image);
+	//console.log('Meta: ', meta.meta);
+	console.log('Images: ', meta.images);
+	console.log('Links: ', meta.links);
 });
 
-// Optional flags to disable parsing images and links and http request options for restler
+/* Optional flags to disable parsing images and links and http request options for restler
 
 metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-towing-capability-dual-motors-falcon-wing-doors-etc.html', {
-    flags: {
-        images: false,
-        links: false
-    },
-    http: {
-        timeout: 30000
-    }
+	flags: {
+		images: false,
+		links: false
+	},
+	http: {
+		timeout: 30000
+	}
 }, function (err, meta) {
-    console.log('title: ', meta.title);
-    console.log('description: ', meta.description);
-    console.log('type: ', meta.type);
-    console.log('url: ', meta.url);
-    console.log('siteName: ', meta.siteName);
-    console.log('charset: ', meta.charset);
-    console.log('image: ', meta.image);
-    console.log('meta: ', meta.meta);
+	if (err) {
+		return console.error(err);
+	}
+	console.log('Title: ', meta.title);
+	console.log('Description: ', meta.description);
+	console.log('Type: ', meta.type);
+	console.log('URL: ', meta.url);
+	console.log('SiteName: ', meta.siteName);
+	console.log('Charset: ', meta.charset);
+	console.log('Image: ', meta.image);
 });
+*/
