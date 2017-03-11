@@ -1,7 +1,8 @@
 language: node_js
 node_js:
-  - "4.1"
-  - "4.0"
+  - "4"
+  - "5"
+  - "6"
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - bash <(cat ./coverage/lcov.info | ./node_modules/.bin/coveralls)
