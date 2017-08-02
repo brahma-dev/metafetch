@@ -30,7 +30,7 @@ var parseMeta = function (url, options, body) {
 			}
 		}).filter(function (e, f) {
 			return (f.match(/\.(jpeg|jpg|gif|png|JPEG|JPG|GIF|PNG)$/) !== null);
-		}).filter(function (item) {
+		}).filter(function (i, item) {
 			return imagehash.hasOwnProperty(item) ? false : (imagehash[item] = true);
 		}).get();
 	}
@@ -43,7 +43,7 @@ var parseMeta = function (url, options, body) {
 			} else {
 				return 0;
 			}
-		}).filter(function (item) {
+		}).filter(function (i, item) {
 			if (item === 0) {
 				return false;
 			}
