@@ -31,6 +31,7 @@ Use NPM to install:
         console.log('meta: ', meta.meta);
         console.log('images: ', meta.images);
         console.log('links: ', meta.links);
+        console.log('headers: ', meta.headers);
     });
 
 Optional flags to disable parsing images and links and http timeout or headers
@@ -44,6 +45,7 @@ Optional flags to disable parsing images and links and http timeout or headers
         console.log('charset: ', meta.charset);
         console.log('image: ', meta.image);
         console.log('meta: ', meta.meta);
+        console.log('headers: ', meta.headers);
     });
 
 ### Response Data
@@ -56,6 +58,7 @@ Optional flags to disable parsing images and links and http timeout or headers
 * `images` : All images on this page.
 * `links` : All links on this page.
 * `meta` : All the meta tags that with a `property` or `name` attribute. e.g `<meta property="author" content="Example">`, `<meta name="description" content="Example.">`
+* `headers` : HTTP headers, lowercasing field names much like node does.
 
 ## License ##
 

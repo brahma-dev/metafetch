@@ -23,6 +23,7 @@ describe('server', function () {
 
 			server2 = http.createServer(function (req, res) {
 				setTimeout(function () {
+					res.setHeader('Content-Type', 'text/html');
 					res.write("<html><head></head><body><a href=''>Invalid link</a></body></html>");
 					res.end();
 				}, 100);
@@ -164,6 +165,15 @@ describe('server', function () {
 			should.not.exist(err);
 			should.exist(meta);
 			should.exist(meta.uri);
+			done();
+		});
+	});
+	it('should verify http headers', function (done) {
+		fetchog.fetch('http://127.0.0.1:14445/', function (err, meta) {
+			should.not.exist(err);
+			should.exist(meta);
+			should.exist(meta.headers);
+			should.exist(meta.headers['content-type']);
 			done();
 		});
 	});

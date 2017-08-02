@@ -7,7 +7,7 @@ var _ = require('lodash'),
 
 charset(rest);
 
-var parseMeta = function (url, options, body) {
+var parseMeta = function (url, options, body, header) {
 	var uri = URI.parse(url);
 	var $ = cheerio.load(body);
 	var response = {};
@@ -87,6 +87,9 @@ var parseMeta = function (url, options, body) {
 	if (options.meta) {
 		response.meta = metaData;
 	}
+	if (options.headers) {
+		response.headers = header || {};
+	}
 	return response;
 };
 
@@ -111,7 +114,8 @@ Client.fetch = function (url, options, callback) {
 		image: true,
 		meta: true,
 		images: true,
-		links: true
+		links: true,
+		headers: true
 	};
 	if (typeof options === 'function') {
 		callback = options;
@@ -144,7 +148,7 @@ Client.fetch = function (url, options, callback) {
 					url = URI.resolve(url, response.headers.location);
 					return pdf();
 				} else if (response.statusType === 2) {
-					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, body) {
+					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, res) {
 						if (err) {
 							return callback(err);
 						}
@@ -174,11 +178,11 @@ Client.fetch = function (url, options, callback) {
 					url = URI.resolve(url, response.headers.location);
 					return text();
 				} else if (response.statusType === 2) {
-					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, body) {
+					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, res) {
 						if (err) {
 							return callback(err);
 						}
-						var meta = parseMeta(url, _options, body.text);
+						var meta = parseMeta(url, _options, res.text, res.header);
 						return callback(null, meta);
 					});
 				} else {
