@@ -14,6 +14,7 @@ metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-to
 	//console.log('Meta: ', meta.meta);
 	console.log('Images: ', meta.images);
 	console.log('Links: ', meta.links);
+	console.log('Headers: ', meta.headers);
 });
 
 /* Optional flags to disable parsing images and links and http timeout or headers
