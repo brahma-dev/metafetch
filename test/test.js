@@ -67,7 +67,7 @@ describe('server', function () {
 		done();
 	});
 	it('should get a return 404 from npmjs.com', function (done) {
-		fetchog.fetch('https://npmjs.com/~afzaalace/nonexistenturl', {
+		fetchog.fetch('https://npmjs.com/~brahma-dev/nonexistenturl', {
 			flags: {
 				images: false,
 				links: false
@@ -79,7 +79,7 @@ describe('server', function () {
 		});
 	});
 	it('should get a meta without error from npmjs.com', function (done) {
-		fetchog.fetch('https://npmjs.com/~afzaalace#someanchor', {
+		fetchog.fetch('https://npmjs.com/~brahma-dev#someanchor', {
 			flags: {
 				images: false,
 				links: false
@@ -96,7 +96,7 @@ describe('server', function () {
 		});
 	});
 	it('should get a meta without error from npmjs.com', function (done) {
-		fetchog.fetch('https://npmjs.com/~afzaalace#someanchor', {
+		fetchog.fetch('https://npmjs.com/~brahma-dev#someanchor', {
 			flags: {
 				title: false,
 				description: false,
@@ -121,7 +121,7 @@ describe('server', function () {
 		});
 	});
 	it('should get a meta without error from npmjs.com', function (done) {
-		fetchog.fetch('http://npmjs.com/~afzaalace#someanchor', function (err, meta) {
+		fetchog.fetch('http://npmjs.com/~brahma-dev#someanchor', function (err, meta) {
 			should.not.exist(err);
 			should.exist(meta);
 			should.exist(meta.uri);
@@ -200,7 +200,7 @@ describe('server', function () {
 		});
 	});
 	it('should get a return 404 from npmjs.com', function (done) {
-		fetchog.fetch('http://npmjs.com/afzaalace/nonexistenturl.pdf', {
+		fetchog.fetch('http://npmjs.com/brahma-dev/nonexistenturl.pdf', {
 			flags: {
 				images: false,
 				links: false

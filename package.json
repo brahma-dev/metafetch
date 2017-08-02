@@ -1,13 +1,13 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "1.4.1",
-  "homepage": "https://github.com/afzaalace/metafetch",
+  "version": "1.4.2",
+  "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",
-    "url": "git://github.com/afzaalace/metafetch.git"
+    "url": "git://github.com/brahma-dev/metafetch.git"
   },
-  "author": "afzaalace",
+  "author": "brahma-dev",
   "keywords": [
     "meta",
     "graph",
@@ -40,6 +40,6 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/afzaalace/metafetch/issues"
+    "url": "https://github.com/brahma-dev/metafetch/issues"
   }
 }

@@ -1,9 +1,9 @@
 # Node [metafetch](https://www.npmjs.org/package/metafetch)
-[![Build Status](https://img.shields.io/travis/afzaalace/metafetch.svg?style=flat-square)](https://travis-ci.org/afzaalace/metafetch)
-[![Coverage](https://img.shields.io/codecov/c/github/afzaalace/metafetch.svg?style=flat-square)](https://codecov.io/github/afzaalace/metafetch?branch=master)
-[![Coverage](https://img.shields.io/coveralls/afzaalace/metafetch.svg?style=flat-square)](https://coveralls.io/github/afzaalace/metafetch?branch=master)
-[![Dependency Status](https://img.shields.io/bithound/dependencies/github/afzaalace/metafetch.svg?style=flat-square)](https://www.bithound.io/github/afzaalace/metafetch/master/dependencies/npm)
-[![Dev Dependencies Status](https://img.shields.io/bithound/devDependencies/github/afzaalace/metafetch.svg?style=flat-square)](https://www.bithound.io/github/afzaalace/metafetch/master/dependencies/npm)
+[![Build Status](https://img.shields.io/travis/brahma-dev/metafetch.svg?style=flat-square)](https://travis-ci.org/brahma-dev/metafetch)
+[![Coverage](https://img.shields.io/codecov/c/github/brahma-dev/metafetch.svg?style=flat-square)](https://codecov.io/github/brahma-dev/metafetch?branch=master)
+[![Coverage](https://img.shields.io/coveralls/brahma-dev/metafetch.svg?style=flat-square)](https://coveralls.io/github/brahma-dev/metafetch?branch=master)
+[![Dependency Status](https://img.shields.io/bithound/dependencies/github/brahma-dev/metafetch.svg?style=flat-square)](https://www.bithound.io/github/brahma-dev/metafetch/master/dependencies/npm)
+[![Dev Dependencies Status](https://img.shields.io/bithound/devDependencies/github/brahma-dev/metafetch.svg?style=flat-square)](https://www.bithound.io/github/brahma-dev/metafetch/master/dependencies/npm)
 [![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg?style=flat-square)](https://snyk.io/test/npm/metafetch)
 
 [![NPM](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)
@@ -61,7 +61,7 @@ Optional flags to disable parsing images and links and http timeout or headers
 
 (The MIT License)
 
-Copyright (c) 2017 Afzaalace;
+Copyright (c) 2017 Brahma Dev;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
