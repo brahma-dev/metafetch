@@ -52,6 +52,7 @@ var parseMeta = function (url, options, body, header) {
 	}
 	var meta = $('meta'),
 		canonicalURL = $("link[rel=canonical]").attr('href'),
+		ampURL = $("link[rel=amphtml]").attr('href'),
 		metaData = {};
 
 	Object.keys(meta).forEach(function (key) {
@@ -78,6 +79,7 @@ var parseMeta = function (url, options, body, header) {
 	}
 	if (options.url) {
 		response.url = canonicalURL || metaData['og:url'] || url;
+		response.ampURL = ampURL || null;
 	}
 	if (options.siteName) {
 		response.siteName = metaData['og:site_name'];

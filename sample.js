@@ -8,6 +8,7 @@ metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-to
 	console.log('Description: ', meta.description);
 	//console.log('Type: ', meta.type);
 	console.log('URL: ', meta.url);
+	console.log('AMPURL: ', meta.ampURL);
 	//console.log('SiteName: ', meta.siteName);
 	//console.log('Charset: ', meta.charset);
 	console.log('Image: ', meta.image);

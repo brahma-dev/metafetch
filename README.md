@@ -25,6 +25,7 @@ Use NPM to install:
         console.log('description: ', meta.description);
         console.log('type: ', meta.type);
         console.log('url: ', meta.url);
+        console.log('ampURL: ', meta.ampURL);
         console.log('siteName: ', meta.siteName);
         console.log('charset: ', meta.charset);
         console.log('image: ', meta.image);
@@ -41,6 +42,7 @@ Optional flags to disable parsing images and links and http timeout or headers
         console.log('description: ', meta.description);
         console.log('type: ', meta.type);
         console.log('url: ', meta.url);
+        console.log('ampURL: ', meta.ampURL);
         console.log('siteName: ', meta.siteName);
         console.log('charset: ', meta.charset);
         console.log('image: ', meta.image);
@@ -54,6 +56,7 @@ Optional flags to disable parsing images and links and http timeout or headers
 * `description` : Page description or `og:description` meta tag.
 * `image` : `og:image` meta tag.
 * `url` : Page url or `og:url` meta tag.
+* `ampURL` : URL from amphtml tag or null.
 * `uri` : Page uri object, parsed by [uri-js](https://github.com/garycourt/uri-js).
 * `images` : All images on this page.
 * `links` : All links on this page.
