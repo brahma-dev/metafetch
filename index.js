@@ -79,6 +79,7 @@ var parseMeta = function (url, options, body, header) {
 	}
 	if (options.url) {
 		response.url = canonicalURL || metaData['og:url'] || url;
+		response.originalURL = url;
 		response.ampURL = ampURL || null;
 	}
 	if (options.siteName) {
