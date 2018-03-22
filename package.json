@@ -1,7 +1,7 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",
@@ -19,7 +19,6 @@
   "dependencies": {
     "cheerio": "^0.22.0",
     "lodash": "^4.11.1",
-    "modern-random-ua": "^1.0.3",
     "superagent": "^3.5.0",
     "superagent-charset": "^1.1.1",
     "uri-js": "^3.0.2"
@@ -32,7 +31,7 @@
     "should": "^11.1.0"
   },
   "scripts": {
-    "test": "mocha --timeout 4000 test && istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec --timeout 4000"
+    "test": "mocha --timeout 4000 test & istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec --timeout 4000"
   },
   "tonicExampleFilename": "sample.js",
   "engines": {

@@ -199,7 +199,7 @@ describe('server', function () {
 		});
 	});
 	it('should timeout', function (done) {
-		fetchog.fetch('http://nonexistntmisspeleddomani' + (new Date().getTime()).toString(36) + '.ocm', {
+		fetchog.fetch('http://example.com:81', {
 			http: {
 				timeout: 1
 			}
@@ -263,7 +263,7 @@ describe('server', function () {
 		});
 	});
 	it('should timeout', function (done) {
-		fetchog.fetch('http://nonexistntmisspeleddomani' + (new Date().getTime()).toString(36) + '.ocm/test.pdf', {
+		fetchog.fetch('http://example.com:81/test.pdf', {
 			http: {
 				timeout: 1
 			}

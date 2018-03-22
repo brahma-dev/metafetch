@@ -37,7 +37,7 @@ Use NPM to install:
 
 Optional flags to disable parsing images and links and http timeout or headers
 
-    metafetch.fetch('http://www.facebook.com', { flags: { images: false, links: false }, http: { timeout: 30000, headers: {'Accept': '*/*'} } }, function(err, meta) {
+    metafetch.fetch('http://www.facebook.com', { userAgent: "User Agent/Defaults to Firefox 58", flags: { images: false, links: false }, http: { timeout: 30000, headers: {'Accept': '*/*'} } }, function(err, meta) {
         console.log('title: ', meta.title);
         console.log('description: ', meta.description);
         console.log('type: ', meta.type);
