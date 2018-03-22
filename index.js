@@ -7,7 +7,7 @@ var _ = require('lodash'),
 
 charset(rest);
 
-var parseMeta = function (url, options, body, header) {
+var parseMeta = function(url, options, body, header) {
 	var uri = URI.parse(url);
 	var $ = cheerio.load(body);
 	var response = {};
@@ -21,29 +21,29 @@ var parseMeta = function (url, options, body, header) {
 
 	if (options.images) {
 		var imagehash = {};
-		response.images = $('img').map(function () {
+		response.images = $('img').map(function() {
 			var src = $(this).attr('src');
 			if (src) {
 				return URI.resolve(url, src);
 			} else {
 				return "";
 			}
-		}).filter(function (e, f) {
+		}).filter(function(e, f) {
 			return (f.match(/\.(jpeg|jpg|gif|png|JPEG|JPG|GIF|PNG)$/) !== null);
-		}).filter(function (i, item) {
+		}).filter(function(i, item) {
 			return imagehash.hasOwnProperty(item) ? false : (imagehash[item] = true);
 		}).get();
 	}
 	if (options.links) {
 		var linkhash = {};
-		response.links = $('a').map(function () {
+		response.links = $('a').map(function() {
 			var href = $(this).attr('href');
 			if (href && href.trim().length && href[0] !== "#") {
 				return URI.resolve(url, href);
 			} else {
 				return 0;
 			}
-		}).filter(function (i, item) {
+		}).filter(function(i, item) {
 			if (item === 0) {
 				return false;
 			}
@@ -55,7 +55,7 @@ var parseMeta = function (url, options, body, header) {
 		ampURL = $("link[rel=amphtml]").attr('href'),
 		metaData = {};
 
-	Object.keys(meta).forEach(function (key) {
+	Object.keys(meta).forEach(function(key) {
 		var attribs = meta[key].attribs;
 		if (attribs) {
 			if (attribs.property) {
@@ -97,17 +97,9 @@ var parseMeta = function (url, options, body, header) {
 	return response;
 };
 
-Client.fetch = function (url, options, callback) {
+Client.fetch = function(url, options, callback) {
 	url = url.split("#")[0]; //Remove any anchor fragments
-	var random_ua = require('modern-random-ua');
-	var http_options = {
-		timeout: 20000,
-		headers: {
-			'Accept': '*/*',
-			'User-Agent': random_ua.generate()
-		},
-		followRedirects: false
-	};
+	var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0";
 	var _options = {
 		title: true,
 		description: true,
@@ -126,6 +118,7 @@ Client.fetch = function (url, options, callback) {
 	} else if (typeof options === 'object') {
 		_.merge(http_options, options.http || {});
 		_.merge(_options, options.flags || {});
+		userAgent = options.userAgent || userAgent;
 	}
 	if (url === undefined || url === "") {
 		if (callback !== undefined) {
@@ -133,11 +126,19 @@ Client.fetch = function (url, options, callback) {
 		}
 		return;
 	}
+	var http_options = {
+		timeout: 20000,
+		headers: {
+			'Accept': '*/*',
+			'User-Agent': userAgent
+		},
+		followRedirects: false
+	};
 	var redirectCount = 0;
 	if (url.slice(-4) === ".pdf") {
-		var pdf = function () {
+		var pdf = function() {
 			//TODO : PDF parsing
-			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, response) {
+			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
 				if (err && err.timeout) {
 					return callback("Timeout");
 				}
@@ -152,7 +153,7 @@ Client.fetch = function (url, options, callback) {
 					url = URI.resolve(url, response.headers.location);
 					return pdf();
 				} else if (response.statusType === 2) {
-					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, res) {
+					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, res) {
 						if (err) {
 							return callback(err);
 						}
@@ -166,8 +167,8 @@ Client.fetch = function (url, options, callback) {
 		};
 		pdf();
 	} else {
-		var text = function () {
-			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, response) {
+		var text = function() {
+			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
 				if (err && err.timeout) {
 					return callback("Timeout");
 				}
@@ -182,7 +183,7 @@ Client.fetch = function (url, options, callback) {
 					url = URI.resolve(url, response.headers.location);
 					return text();
 				} else if (response.statusType === 2) {
-					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, res) {
+					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, res) {
 						if (err) {
 							return callback(err);
 						}
