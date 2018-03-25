@@ -138,28 +138,16 @@ Client.fetch = function(url, options, callback) {
 	if (url.slice(-4) === ".pdf") {
 		var pdf = function() {
 			//TODO : PDF parsing
-			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
+			rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
 				if (err && err.timeout) {
 					return callback("Timeout");
 				}
 				if (!!!response) {
 					return callback(err);
 				}
-				if (response.statusType === 3) {
-					redirectCount++;
-					if (redirectCount > 5) {
-						return callback("Too many redirects");
-					}
-					url = URI.resolve(url, response.headers.location);
-					return pdf();
-				} else if (response.statusType === 2) {
-					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, res) {
-						if (err) {
-							return callback(err);
-						}
-						var meta = parseMeta(url, _options, "Metafetch does not support parsing PDF Content.");
-						return callback(null, meta);
-					});
+				if (response.statusType === 2) {
+					var meta = parseMeta(url, _options, "Metafetch does not support parsing PDF Content.");
+					return callback(null, meta);
 				} else {
 					return callback(err.status);
 				}
@@ -167,35 +155,20 @@ Client.fetch = function(url, options, callback) {
 		};
 		pdf();
 	} else {
-		var text = function() {
-			rest.head(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
-				if (err && err.timeout) {
-					return callback("Timeout");
-				}
-				if (!!!response) {
-					return callback(err);
-				}
-				if (response.statusType === 3) {
-					redirectCount++;
-					if (redirectCount > 5) {
-						return callback("Too many redirects");
-					}
-					url = URI.resolve(url, response.headers.location);
-					return text();
-				} else if (response.statusType === 2) {
-					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, res) {
-						if (err) {
-							return callback(err);
-						}
-						var meta = parseMeta(url, _options, res.text, res.header);
-						return callback(null, meta);
-					});
-				} else {
-					return callback(err.status);
-				}
-			});
-		};
-		text();
+		rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function(err, response) {
+			if (err && err.timeout) {
+				return callback("Timeout");
+			}
+			if (!!!response) {
+				return callback(err);
+			}
+			if (response.statusType === 2) {
+				var meta = parseMeta(response.request.url, _options, response.text, response.header);
+				return callback(null, meta);
+			} else {
+				return callback(err.status);
+			}
+		});
 	}
 };
 
