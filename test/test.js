@@ -17,7 +17,7 @@ describe('server', function () {
 				});
 				res.end();
 			}, 100);
-		}).listen(14444);
+		}).listen(2444, '0.0.0.0');
 
 		server1.on("listening", function () {
 
@@ -27,7 +27,7 @@ describe('server', function () {
 					res.write("<html><head></head><body><a href=''>Invalid link</a></body></html>");
 					res.end();
 				}, 100);
-			}).listen(14445);
+			}).listen(2445, '0.0.0.0');
 
 			server2.on("listening", function () {
 				var flip = true;
@@ -44,7 +44,7 @@ describe('server', function () {
 						}, 100);
 					}
 					flip = !flip;
-				}).listen(14446);
+				}).listen(2446, '0.0.0.0');
 
 				done();
 			})
@@ -53,6 +53,7 @@ describe('server', function () {
 	after(function (done) {
 		server1.close();
 		server2.close();
+		server3.close();
 		done();
 	});
 	it('should return invalid url error', function (done) {
@@ -161,7 +162,7 @@ describe('server', function () {
 		});
 	});
 	it('should get a meta without error from test server for invalid links', function (done) {
-		fetchog.fetch('http://127.0.0.1:14445/', function (err, meta) {
+		fetchog.fetch('http://127.0.0.1:2445/', function (err, meta) {
 			should.not.exist(err);
 			should.exist(meta);
 			should.exist(meta.uri);
@@ -169,7 +170,7 @@ describe('server', function () {
 		});
 	});
 	it('should verify http headers', function (done) {
-		fetchog.fetch('http://127.0.0.1:14445/', function (err, meta) {
+		fetchog.fetch('http://127.0.0.1:2445/', function (err, meta) {
 			should.not.exist(err);
 			should.exist(meta);
 			should.exist(meta.headers);
@@ -178,13 +179,13 @@ describe('server', function () {
 		});
 	});
 	it('should redirect too many times.', function (done) {
-		fetchog.fetch('http://127.0.0.1:14444/', {
+		fetchog.fetch('http://127.0.0.1:2444/', {
 			http: {
 				timeout: 1500
 			}
 		}, function (err, meta) {
 			should.exist(err);
-			err.should.equal("Too many redirects");
+			err.should.equal(302);
 			done();
 		});
 	});
@@ -216,7 +217,7 @@ describe('server', function () {
 				links: false
 			},
 			http: {
-				timeout: 1500
+				timeout: 5000
 			}
 		}, function (err, meta) {
 			should.exist(err);
@@ -274,13 +275,13 @@ describe('server', function () {
 		});
 	});
 	it('should redirect too many times.', function (done) {
-		fetchog.fetch('http://127.0.0.1:14444/test.pdf', {
+		fetchog.fetch('http://127.0.0.1:2444/test.pdf', {
 			http: {
 				timeout: 1500
 			}
 		}, function (err, meta) {
 			should.exist(err);
-			err.should.equal("Too many redirects");
+			err.should.equal(302);
 			done();
 		});
 	});
@@ -297,24 +298,22 @@ describe('server', function () {
 		});
 	});
 	it('Failed valid request.', function (done) {
-		fetchog.fetch('http://127.0.0.1:14446/test.html', {
+		fetchog.fetch('http://127.0.0.1:2446/test.html', {
 			http: {
 				timeout: 1500
 			}
 		}, function (err, meta) {
-			should.exist(err);
-			should.exist(err.message);
+			should.not.exist(err);
 			done();
 		});
 	});
 	it('Failed valid request.', function (done) {
-		fetchog.fetch('http://127.0.0.1:14446/test.pdf', {
+		fetchog.fetch('http://127.0.0.1:2446/test.pdf', {
 			http: {
 				timeout: 1500
 			}
 		}, function (err, meta) {
 			should.exist(err);
-			should.exist(err.message);
 			done();
 		});
 	});
