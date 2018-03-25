@@ -102,7 +102,7 @@ Client.fetch = function(url, options, callback) {
 	var http_options = {
 		timeout: 20000,
 		headers: {
-			'Accept': '*/*'
+			'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
 		},
 		followRedirects: false
 	};
