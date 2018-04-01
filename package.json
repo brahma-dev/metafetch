@@ -21,7 +21,7 @@
     "lodash": "^4.11.1",
     "superagent": "^3.5.0",
     "superagent-charset": "^1.1.1",
-    "uri-js": "^3.0.2"
+    "uri-js": "^4.2.0"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
