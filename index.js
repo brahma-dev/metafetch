@@ -117,11 +117,18 @@ var parseMeta = function(url, options, body, header) {
 		response.meta = metaData;
 	}
 	if (options.headers) {
-		response.headers = header || {};
+		response.headers = header;
 	}
 	return response;
 };
-
+Client.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0";
+Client.setUserAgent = function(agent) {
+	if (typeof agent == "string") {
+		Client.userAgent = agent;
+	} else {
+		throw "METAFETCH: Invalid User agent string supplied";
+	}
+};
 Client.fetch = function(url, options, callback) {
 	url = url.split("#")[0]; //Remove any anchor fragments
 	var http_options = {
@@ -131,7 +138,7 @@ Client.fetch = function(url, options, callback) {
 		},
 		followRedirects: false
 	};
-	var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0";
+	var userAgent = Client.userAgent;
 	var _options = {
 		title: true,
 		description: true,
