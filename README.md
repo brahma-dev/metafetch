@@ -33,11 +33,12 @@ Use NPM to install:
         console.log('images: ', meta.images);
         console.log('links: ', meta.links);
         console.log('headers: ', meta.headers);
+        console.log('language: ', meta.language);
     });
 
 Optional flags to disable parsing images and links and http timeout or headers
 
-    metafetch.fetch('http://www.facebook.com', { userAgent: "User Agent/Defaults to Firefox 58", flags: { images: false, links: false }, http: { timeout: 30000, headers: {'Accept': '*/*'} } }, function(err, meta) {
+    metafetch.fetch('http://www.facebook.com', { userAgent: "User Agent/Defaults to Firefox 58", flags: { images: false, links: false, language: false }, http: { timeout: 30000, headers: {'Accept': '*/*'} } }, function(err, meta) {
         console.log('title: ', meta.title);
         console.log('description: ', meta.description);
         console.log('type: ', meta.type);
@@ -62,6 +63,7 @@ Optional flags to disable parsing images and links and http timeout or headers
 * `links` : All links on this page.
 * `meta` : All the meta tags that with a `property` or `name` attribute. e.g `<meta property="author" content="Example">`, `<meta name="description" content="Example.">`
 * `headers` : HTTP headers, lowercasing field names much like node does.
+* `language` : Content language (ISO 639-1) based on meta data/headers, falling back to detection by [franc](https://www.npmjs.com/package/franc).
 
 ## License ##
 

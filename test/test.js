@@ -109,7 +109,9 @@ describe('server', function () {
 				meta: false,
 				links: false,
 				charset: false,
-				image: false
+				image: false,
+				headers: false,
+				language: false
 			},
 			http: {
 				timeout: 30000
@@ -119,6 +121,15 @@ describe('server', function () {
 			should.exist(meta);
 			should.exist(meta.uri);
 			meta.uri.host.should.equal('www.npmjs.com');
+			done();
+		});
+	});
+	it('should get a meta without error from bbc.com', function (done) {
+		fetchog.fetch('http://www.bbc.com/news/newsbeat-43722444', function (err, meta) {
+			should.not.exist(err);
+			should.exist(meta);
+			should.exist(meta.uri);
+			meta.uri.host.should.equal('www.bbc.com');
 			done();
 		});
 	});

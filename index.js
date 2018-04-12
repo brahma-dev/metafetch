@@ -3,13 +3,22 @@ var _ = require('lodash'),
 	charset = require('superagent-charset'),
 	rest = require('superagent'),
 	URI = require('uri-js'),
+	franc = require('franc'),
+	langs = require('langs'),
 	Client = {};
 
 charset(rest);
 
 var parseMeta = function(url, options, body, header) {
+	header = header || {};
 	var uri = URI.parse(url);
 	var $ = cheerio.load(body);
+	$('script').remove();
+	$('style').remove();
+	$('applet').remove();
+	$('embed').remove();
+	$('object').remove();
+	$('noscript').remove();
 	var response = {};
 	var title;
 	if (options.title) {
@@ -66,8 +75,22 @@ var parseMeta = function(url, options, body, header) {
 			if (attribs.name) {
 				metaData[attribs.name.toLowerCase()] = attribs.content;
 			}
+			if (attribs['http-equiv']) {
+				header[attribs['http-equiv']] = attribs.content;
+			}
 		}
 	});
+
+	if (options.language) {
+		response.language = $("html").attr("lang") || $("html").attr("xml:lang") || header["Content-Language"] || header["content-language"];
+		if (!!!response.language) {
+			response.language = langs.where("2", franc($('body').text().replace(/\n\s*\n/g, '\n')))
+			response.language = response.language && response.language[1];
+		} else {
+			response.language = response.language.split("-")[0];
+		}
+	}
+
 	response.uri = uri;
 
 	if (options.title) {
@@ -120,7 +143,8 @@ Client.fetch = function(url, options, callback) {
 		meta: true,
 		images: true,
 		links: true,
-		headers: true
+		headers: true,
+		language: true
 	};
 	if (typeof options === 'function') {
 		callback = options;
