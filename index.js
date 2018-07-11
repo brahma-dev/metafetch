@@ -12,7 +12,12 @@ charset(rest);
 var parseMeta = function(url, options, body, header) {
 	header = header || {};
 	var uri = URI.parse(url);
-	var $ = cheerio.load(body);
+	var $;
+	try {
+		$ = cheerio.load(body);
+	} catch (e) {
+		return "Invalid HTML";
+	}
 	$('script').remove();
 	$('style').remove();
 	$('applet').remove();
@@ -197,6 +202,9 @@ Client.fetch = function(url, options, callback) {
 			}
 			if (response.statusType === 2) {
 				var meta = parseMeta(response.request.url, _options, response.text, response.header);
+				if (typeof meta == "string") {
+					return callback(meta);
+				}
 				return callback(null, meta);
 			} else {
 				return callback(err.status);

@@ -33,6 +33,7 @@ describe('server', function() {
 				server3 = http.createServer(function(req, res) {
 					if (flip) {
 						setTimeout(function() {
+							res.setHeader('Content-Type', 'text/html');
 							res.writeHead(200);
 							res.end();
 						}, 100);
@@ -347,5 +348,16 @@ describe('server', function() {
 		}
 		should.exist(err);
 		done();
+	});
+	it('Invalid HTML', function(done) {
+		fetchog.fetch('https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg', {
+			http: {
+				timeout: 1500
+			}
+		}, function(err, meta) {
+			should.exist(err);
+			err.should.equal("Invalid HTML");
+			done();
+		});
 	});
 });
