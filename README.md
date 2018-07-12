@@ -2,8 +2,6 @@
 [![Build Status](https://img.shields.io/travis/brahma-dev/metafetch.svg?style=flat-square)](https://travis-ci.org/brahma-dev/metafetch)
 [![Coverage](https://img.shields.io/codecov/c/github/brahma-dev/metafetch.svg?style=flat-square)](https://codecov.io/github/brahma-dev/metafetch?branch=master)
 [![Coverage](https://img.shields.io/coveralls/brahma-dev/metafetch.svg?style=flat-square)](https://coveralls.io/github/brahma-dev/metafetch?branch=master)
-[![Dependency Status](https://img.shields.io/bithound/dependencies/github/brahma-dev/metafetch.svg?style=flat-square)](https://www.bithound.io/github/brahma-dev/metafetch/master/dependencies/npm)
-[![Dev Dependencies Status](https://img.shields.io/bithound/devDependencies/github/brahma-dev/metafetch.svg?style=flat-square)](https://www.bithound.io/github/brahma-dev/metafetch/master/dependencies/npm)
 [![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg?style=flat-square)](https://snyk.io/test/npm/metafetch)
 
 [![NPM](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)](https://nodei.co/npm/metafetch.png?downloadRank=true&downloads=true)
