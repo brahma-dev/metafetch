@@ -63,9 +63,9 @@ describe('server', function() {
 			done();
 		});
 	});
-	it('should return nothing', function(done) {
-		var err = fetchog.fetch("");
-		should.not.exist(err);
+	it('should return promise', function(done) {
+		var err = fetchog.fetch("").catch(() => null);
+		err.should.be.an.instanceOf(Promise);
 		done();
 	});
 	it('should get a return 404 from npmjs.com', function(done) {
