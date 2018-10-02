@@ -34,7 +34,25 @@ Use NPM to install:
         console.log('language: ', meta.language);
     });
 
-Optional flags to disable parsing images and links and http timeout or headers
+#### Or using Promise
+
+    metafetch.fetch('http://www.facebook.com'[, options]).then(function(meta) {
+        console.log('title: ', meta.title);
+        console.log('description: ', meta.description);
+        console.log('type: ', meta.type);
+        console.log('url: ', meta.url);
+        console.log('ampURL: ', meta.ampURL);
+        console.log('siteName: ', meta.siteName);
+        console.log('charset: ', meta.charset);
+        console.log('image: ', meta.image);
+        console.log('meta: ', meta.meta);
+        console.log('images: ', meta.images);
+        console.log('links: ', meta.links);
+        console.log('headers: ', meta.headers);
+        console.log('language: ', meta.language);
+    }).catch(console.error);
+
+#### Optional flags to disable parsing images and links and http timeout or headers
 
     metafetch.fetch('http://www.facebook.com', { 
         userAgent: "User Agent/Defaults to Firefox 58",
@@ -63,7 +81,7 @@ Optional flags to disable parsing images and links and http timeout or headers
         console.log('language: ', meta.language);
     });
 
-Set User Agent across instance
+#### Set User Agent across instance
 
     metafetch.setUserAgent("PersonalBot");
 

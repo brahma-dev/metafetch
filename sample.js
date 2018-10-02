@@ -1,6 +1,6 @@
 var metafetch = require('./index.js');
 
-metafetch.fetch('http://time.com/5386948/elizabeth-warren-geoff-diehl-massachusetts/', function(err, meta) {
+metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-towing-capability-dual-motors-falcon-wing-doors-etc.html', function(err, meta) {
 	if (err) {
 		return console.error(err);
 	}
@@ -21,10 +21,7 @@ metafetch.fetch('http://time.com/5386948/elizabeth-warren-geoff-diehl-massachuse
 
 //Or using Promise
 
-metafetch.fetch('http://time.com/5386948/elizabeth-warren-geoff-diehl-massachusetts/').then(function(meta) {
-	if (err) {
-		return console.error(err);
-	}
+metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-towing-capability-dual-motors-falcon-wing-doors-etc.html').then(function(meta) {
 	console.log('Title: ', meta.title);
 	console.log('Description: ', meta.description);
 	//console.log('Type: ', meta.type);
