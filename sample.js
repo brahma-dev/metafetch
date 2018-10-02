@@ -1,4 +1,4 @@
-var metafetch = require('./index.js');
+var metafetch = require('metafetch');
 
 metafetch.fetch('http://www.treehugger.com/cars/tesla-model-x-update-first-ev-towing-capability-dual-motors-falcon-wing-doors-etc.html', function(err, meta) {
 	if (err) {
