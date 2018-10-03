@@ -68,6 +68,11 @@ describe('server', function() {
 		err.should.be.an.instanceOf(Promise);
 		done();
 	});
+	it('should return promise', function(done) {
+		var res = fetchog.fetch("https://npmjs.com/~brahma-dev").then(() => null);
+		res.should.be.an.instanceOf(Promise);
+		done();
+	});
 	it('should get a return 404 from npmjs.com', function(done) {
 		fetchog.fetch('https://npmjs.com/~brahma-dev/nonexistenturl', {
 			flags: {
