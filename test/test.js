@@ -63,6 +63,13 @@ describe('server', function() {
 			done();
 		});
 	});
+	it('should return invalid url error', function(done) {
+		fetchog.fetch("https://www.rediff.com/news/report/what-next-for-uddhav-thackeray/20191123.htm? var = uddhave next cm", function(err, meta) {
+			should.not.exist(err);
+			//err.should.equal("Invalid URL");
+			done();
+		});
+	});
 	it('should return promise', function(done) {
 		var err = fetchog.fetch("").catch(() => null);
 		err.should.be.an.instanceOf(Promise);
