@@ -8,8 +8,26 @@ import parseMeta from './parser'
 
 interface FetchOptions {
 	userAgent?: string
-	http?: any,
-	flags?: any
+	http?: {
+		headers?: { [key: string]: string }
+		timeout?: number,
+		followRedirects?: boolean,
+		[key: string]: any
+	},
+	flags?: {
+		title?: boolean,
+		description?: boolean,
+		type?: boolean,
+		url?: boolean,
+		siteName?: boolean,
+		charset?: boolean,
+		image?: boolean,
+		meta?: boolean,
+		images?: boolean,
+		links?: boolean,
+		headers?: boolean,
+		language?: boolean,
+	}
 }
 
 
