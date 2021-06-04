@@ -1,7 +1,8 @@
 /*jshint mocha: true*/
 var should = require('should'),
 	path = require('path'),
-	fetchog = require(path.join(__dirname, '../index.js'));
+	fetchog = require(path.join(__dirname, '../dist/index.js'));
+	console.log(fetchog)
 //Server for redirects
 var http = require('http');
 var server1;
