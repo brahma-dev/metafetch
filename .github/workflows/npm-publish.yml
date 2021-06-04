@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+      - run: npm ci
       - run: npm run build
       - run: npm test
       - uses: coverallsapp/github-action@master
@@ -34,6 +35,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
+      - run: npm ci
       - run: npm run build
       - run: npm publish
         env:
@@ -51,6 +53,7 @@ jobs:
         with:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
+      - run: npm ci
       - run: npm run build
       - run: npm publish
         env:
