@@ -108,7 +108,7 @@ class Metafetch {
 				};
 				pdf();
 			} else {
-				rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, response) {
+				rest.get(url).charset().set(http_options.headers).timeout(http_options.timeout).end(function (err, response) {
 					if (err && err.timeout) {
 						return finish("Timeout");
 					}
