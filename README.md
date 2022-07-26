@@ -16,25 +16,7 @@ Use NPM to install:
 
 ## Usage
 
-    var metafetch = require('metafetch');
-
-    metafetch.fetch('http://www.facebook.com'[, options], function(err, meta) {
-        console.log('title: ', meta.title);
-        console.log('description: ', meta.description);
-        console.log('type: ', meta.type);
-        console.log('url: ', meta.url);
-        console.log('ampURL: ', meta.ampURL);
-        console.log('siteName: ', meta.siteName);
-        console.log('charset: ', meta.charset);
-        console.log('image: ', meta.image);
-        console.log('meta: ', meta.meta);
-        console.log('images: ', meta.images);
-        console.log('links: ', meta.links);
-        console.log('headers: ', meta.headers);
-        console.log('language: ', meta.language);
-    });
-
-#### Or using Promise
+    import metafetch from 'metafetch';
 
     metafetch.fetch('http://www.facebook.com'[, options]).then(function(meta) {
         console.log('title: ', meta.title);
@@ -67,7 +49,7 @@ Use NPM to install:
                 Accept: "*/*"
             }
         }
-    }, function(err, meta) {
+    }).then(function(meta) {
         console.log('title: ', meta.title);
         console.log('description: ', meta.description);
         console.log('type: ', meta.type);
@@ -79,7 +61,7 @@ Use NPM to install:
         console.log('meta: ', meta.meta);
         console.log('headers: ', meta.headers);
         console.log('language: ', meta.language);
-    });
+    }).catch(console.error);;
 
 #### Set User Agent across instance
 
@@ -92,7 +74,6 @@ Use NPM to install:
 * `image` : `og:image` meta tag.
 * `url` : Page url or `og:url` meta tag.
 * `ampURL` : URL from amphtml tag or null.
-* `uri` : Page uri object, parsed by [uri-js](https://github.com/garycourt/uri-js).
 * `images` : All images on this page.
 * `links` : All links on this page.
 * `meta` : All the meta tags that with a `property` or `name` attribute. e.g `<meta property="author" content="Example">`, `<meta name="description" content="Example.">`
@@ -103,7 +84,7 @@ Use NPM to install:
 
 (The MIT License)
 
-Copyright (c) 2017 Brahma Dev;
+Copyright (c) 2022 Brahma Dev;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
