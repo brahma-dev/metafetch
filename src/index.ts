@@ -1,18 +1,36 @@
 import _ from "lodash";
-const charset = require('superagent-charset');
-import rest from "superagent";
+import iconv from 'iconv-lite';
+import parser, { MetafetchResponse } from "./parser";
+import axios, { AxiosRequestHeaders, AxiosBasicCredentials, AxiosProxyConfig } from "axios";
 
-charset(rest);
-
-import parseMeta from './parser'
+axios.interceptors.response.use(response => {
+	let enc = (response.headers['content-type'].match(/charset=(.+)/) || []).pop();
+	if (!enc) {
+		// Extracted from <meta charset="gb2312"> or <meta http-equiv=Content-Type content="text/html;charset=gb2312">
+		enc = (response.data.toString().match(/<meta.+?charset=['"]?([^"']+)/i) || []).pop()
+	}
+	if (!enc) {
+		// Default utf8
+		enc = 'utf-8'
+	}
+	if (iconv.encodingExists(enc)) {
+		response.data = iconv.decode(response.data, enc);
+	}else{
+		//Fallback to UTF-8
+		response.data = iconv.decode(response.data, "utf-8");
+	}
+	return response;
+})
 
 interface FetchOptions {
 	userAgent?: string
 	http?: {
-		headers?: { [key: string]: string }
+		headers?: AxiosRequestHeaders,
 		timeout?: number,
-		followRedirects?: boolean,
-		[key: string]: any
+		maxRedirects?: number,
+		auth?: AxiosBasicCredentials,
+		proxy?: false | AxiosProxyConfig,
+		maxContentLength?: number
 	},
 	flags?: {
 		title?: boolean,
@@ -30,27 +48,33 @@ interface FetchOptions {
 	}
 }
 
-
-
 class Metafetch {
-	public userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0";
+	public userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0";
 	public setUserAgent(agent: string) {
 		if (typeof agent == "string") {
 			this.userAgent = agent;
 		} else {
-			throw "METAFETCH: Invalid User agent supplied";
+			throw new Error("METAFETCH: Invalid User agent supplied");
 		}
 	}
-	public fetch(url: string, options?: FetchOptions, callback?: Function) {
-		return new Promise((resolve, reject) => {
-			url = url.split("#")[0]; //Remove any anchor fragments
-			const http_options = {
+
+	public fetch(url: string, options?: FetchOptions) {
+		return new Promise<MetafetchResponse>((resolve, reject) => {
+
+			if (typeof url != "string" || url === "") {
+				return reject(new Error(`Invalid URL`));
+			}
+			let cleanurl = url.split("#")[0]; //Remove any anchor fragments
+			if (cleanurl === "" || cleanurl.slice(-4) === ".pdf") {
+				return reject(new Error(`Invalid URL`));
+			}
+			const http_options: FetchOptions["http"] = {
 				timeout: 20000,
 				headers: {
 					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-					'User-Agent': ""
+					'User-Agent': this.userAgent
 				},
-				followRedirects: false
+				maxRedirects: 5
 			};
 			const _options = {
 				title: true,
@@ -67,70 +91,47 @@ class Metafetch {
 				language: true
 			};
 			let userAgent = this.userAgent;
-			if (typeof options === 'function') {
-				callback = options;
-			} else if (typeof options === 'object') {
-				_.merge(http_options, options.http || {});
+			if (typeof options === 'object') {
+				_.merge(http_options.headers, options.http?.headers || {});
+				http_options.timeout = options.http?.timeout || http_options.timeout;
+				http_options.maxRedirects = options.http?.maxRedirects || http_options.maxRedirects;
 				_.merge(_options, options.flags || {});
 				userAgent = options.userAgent || userAgent;
 			}
-			const finish = function (err: any, res?: any) {
-				if (typeof callback !== "undefined") {
-					return callback(err, res);
-				} else if (err) {
-					return reject(err);
+			let redirectCount = 0;
+			axios({
+				method: 'get',
+				url: cleanurl,
+				headers: http_options.headers,
+				maxRedirects: http_options.maxRedirects,
+				auth: http_options.auth,
+				proxy: http_options.proxy,
+				maxContentLength: http_options.maxContentLength,
+				responseType: 'arraybuffer',
+			}).then((response) => {
+				let result = parser(cleanurl, _options, response.data, response.headers)
+				resolve(result);
+			}).catch((err) => {
+				if (err.response) {
+					return reject(new Error(`HTTP:${err.response.status}`));
+				} else if (err.request) {
+					// The request was made but no response was received
+					// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+					// http.ClientRequest in node.js
+					// console.error(err.message);
+				} else {
+					// if (err.message == "Maximum number of redirects exceeded")
+					// 	return reject(new Error(err.message))
+					// Something happened in setting up the request that triggered an Error
+					// console.log('Error', err.message);
 				}
-				return resolve(res);
-			};
-			if (typeof url != "string" || url === "") {
-				return finish("Invalid URL", (url || ""));
-			}
-
-			http_options.headers['User-Agent'] = userAgent;
-			var redirectCount = 0;
-			if (url.slice(-4) === ".pdf") {
-				var pdf = function () {
-					//TODO : PDF parsing
-					rest.get(url).set(http_options.headers).timeout(http_options.timeout).end(function (err, response) {
-						if (err && err.timeout) {
-							return finish("Timeout");
-						}
-						if (!!!response) {
-							return finish(err);
-						}
-						if (response.statusType === 2) {
-							var meta = parseMeta(url, _options, "Metafetch does not support parsing PDF Content.");
-							return finish(null, meta);
-						} else {
-							return finish(err.status);
-						}
-					});
-				};
-				pdf();
-			} else {
-				rest.get(url).charset().set(http_options.headers).timeout(http_options.timeout).end(function (err, response) {
-					if (err && err.timeout) {
-						return finish("Timeout");
-					}
-					if (!!!response) {
-						return finish(err);
-					}
-					if (response.statusType === 2) {
-						//@ts-ignore
-						var meta = parseMeta(response.request.url, _options, response.text, response.header);
-						if (typeof meta == "string") {
-							return finish(meta);
-						}
-						return finish(null, meta);
-					} else {
-						return finish(err.status);
-					}
-				});
-			}
-		})
+				// console.error(err);
+				reject(err);
+			})
+		});
 	}
 }
 
-const Client = new Metafetch();
+const exportobj = new Metafetch();
 
-module.exports = Client
+export default exportobj;

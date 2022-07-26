@@ -1,39 +1,51 @@
-//@ts-nocheck
-
-import cheerio from "cheerio";
-const URI =require("uri-js");
+import cheerio, { CheerioAPI } from "cheerio";
+import { URL } from 'url';
 import franc from "franc";
-import langs from "langs";
-export default function (url, options, body, header?) {
-	header = header || {};
-	var uri = URI.parse(url);
-	var $: any;
-	try {
-		$ = cheerio.load(body);
-	} catch (e) {
-		return "Invalid HTML";
-	}
+import langs, { Language } from "langs";
+import type { AxiosResponseHeaders } from "axios";
+
+export interface MetafetchResponse {
+	title?: string,
+	charset?: string,
+	images?: Array<string>,
+	links?: Array<string>,
+	language?: string | Language,
+	description?: string,
+	type?: string,
+	url?: URL,
+	originalURL?: string,
+	ampURL?: string,
+	siteName?: string,
+	image?: string,
+	meta?: { [x: string]: string },
+	headers?: AxiosResponseHeaders,
+}
+export default function (url: string, options: any, body: string, headers: AxiosResponseHeaders): MetafetchResponse {
+	if (!body.includes("html"))
+		throw new Error("Invalid HTML");
+	let $: CheerioAPI;
+	$ = cheerio.load(body);
 	$('script').remove();
 	$('style').remove();
 	$('applet').remove();
 	$('embed').remove();
 	$('object').remove();
 	$('noscript').remove();
-	var response: any = {};
-	var title;
+
+	let response: MetafetchResponse = {};
+	let title;
 	if (options.title) {
 		title = $('title').text();
 	}
 	if (options.charset) {
-		response.charset = $("meta[charset]").attr("charset");
+		response.charset = $("meta[charset]").attr("charset") || (headers['content-type'].match(/charset=(.+)/) || []).pop();
 	}
-
 	if (options.images) {
-		var imagehash = {};
+		var imagehash: { [x: string]: boolean } = {};
 		response.images = $('img').map(function () {
-			var src = $(this).attr('src');
+			let src: string | undefined = $(this).attr('src') || $(this).attr('data-src');
 			if (src) {
-				return URI.resolve(url, src);
+				return (new URL(src, url)).href;
 			} else {
 				return "";
 			}
@@ -42,31 +54,47 @@ export default function (url, options, body, header?) {
 		}).filter(function (i, item) {
 			return imagehash.hasOwnProperty(item) ? false : (imagehash[item] = true);
 		}).get();
+		const imageCandidateRegex = /\s*([^,]\S*[^,](?:\s+[^,]+)?)\s*(?:,|$)/;
+		$('img').map(function () {
+			let src: string | undefined = $(this).attr('srcset') || $(this).attr('data-srcset');
+			if (src) {
+				return src.split(imageCandidateRegex)
+					.filter((part, index) => index % 2 === 1)
+					.forEach(part => {
+						let [imgurl, ...descriptors] = part.trim().split(/\s+/);
+						imgurl = (new URL(imgurl, url)).href;
+						imagehash.hasOwnProperty(imgurl) ? false : ((imagehash[imgurl] = true) && response.images?.push(imgurl));
+					});
+			} else {
+				return "";
+			}
+		});
 	}
 	if (options.links) {
-		var linkhash = {};
+		var linkhash: { [x: string]: boolean } = {};
 		response.links = $('a').map(function () {
-			var href = $(this).attr('href');
+			let href: string | undefined = $(this).attr('href');
 			if (href && href.trim().length && href[0] !== "#") {
-				return URI.resolve(url, href);
+				return (new URL(href, url)).href;
 			} else {
-				return 0;
+				return "";
 			}
 		}).filter(function (i, item) {
-			if (item === 0) {
+			if (item === "") {
 				return false;
 			}
 			return linkhash.hasOwnProperty(item) ? false : (linkhash[item] = true);
 		}).get();
 	}
-	var meta = $('meta'),
+	let meta = $('meta'),
 		canonicalURL = $("link[rel=canonical]").attr('href'),
 		ampURL = $("link[rel=amphtml]").attr('href'),
-		metaData = {};
+		metaData: { [x: string]: string } = {};
 	if (ampURL) {
-		ampURL = URI.resolve(url, ampURL);
+		ampURL = (new URL(ampURL, url)).href;
 	}
-	Object.keys(meta).forEach(function (key) {
+	Object.keys(meta).forEach(function (key: string) {
+		//@ts-ignore
 		var attribs = meta[key].attribs;
 		if (attribs) {
 			if (attribs.property) {
@@ -76,22 +104,21 @@ export default function (url, options, body, header?) {
 				metaData[attribs.name.toLowerCase()] = attribs.content;
 			}
 			if (attribs['http-equiv']) {
-				header[attribs['http-equiv']] = attribs.content;
+				headers[attribs['http-equiv']] = attribs.content;
 			}
 		}
 	});
-
 	if (options.language) {
-		response.language = $("html").attr("lang") || $("html").attr("xml:lang") || header["Content-Language"] || header["content-language"];
-		if (!!!response.language) {
+		response.language = $("html").attr("lang") || $("html").attr("xml:lang") || headers["Content-Language"] || headers["content-language"];
+		if (typeof response.language == "string") {
+			response.language = response.language.split("-")[0];
+		} else {
 			response.language = langs.where("2", franc($('body').text().replace(/\n\s*\n/g, '\n')))
 			response.language = response.language && response.language[1];
-		} else {
-			response.language = response.language.split("-")[0];
 		}
 	}
 
-	response.uri = uri;
+	// response.uri = uri;
 
 	if (options.title) {
 		response.title = metaData['og:title'] || title;
@@ -103,9 +130,9 @@ export default function (url, options, body, header?) {
 		response.type = metaData['og:type'];
 	}
 	if (options.url) {
-		response.url = URI.resolve(url, canonicalURL || metaData['og:url'] || url);
+		response.url = (new URL(canonicalURL || metaData['og:url'] || url, url));
 		response.originalURL = url;
-		response.ampURL = ampURL || null;
+		response.ampURL = ampURL || undefined;
 	}
 	if (options.siteName) {
 		response.siteName = metaData['og:site_name'];
@@ -117,7 +144,7 @@ export default function (url, options, body, header?) {
 		response.meta = metaData;
 	}
 	if (options.headers) {
-		response.headers = header;
+		response.headers = headers;
 	}
 	return response;
-};
+}
