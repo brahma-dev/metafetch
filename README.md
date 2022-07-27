@@ -1,7 +1,7 @@
 # Node [metafetch](https://www.npmjs.org/package/metafetch)
 [![Build Status](https://github.com/brahma-dev/metafetch/actions/workflows/build.yml/badge.svg)](https://github.com/brahma-dev/metafetch/actions/workflows/build.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/brahma-dev/metafetch.svg?style=flat-square)](https://codecov.io/github/brahma-dev/metafetch?branch=master)
-[![Coverage](https://img.shields.io/coveralls/brahma-dev/metafetch.svg?style=flat-square)](https://coveralls.io/github/brahma-dev/metafetch?branch=master)
+[![Coverage](https://img.shields.io/codecov/c/github/brahma-dev/metafetch.svg?style=flat-square)](https://codecov.io/github/brahma-dev/metafetch)
+[![Coverage](https://img.shields.io/coveralls/brahma-dev/metafetch.svg?style=flat-square)](https://coveralls.io/github/brahma-dev/metafetch)
 [![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg?style=flat-square)](https://snyk.io/test/npm/metafetch)
 
 [![Try metafetch on RunKit](https://badge.runkitcdn.com/metafetch.svg)](https://npm.runkit.com/metafetch)
