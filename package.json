@@ -1,14 +1,15 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",
     "url": "git://github.com/brahma-dev/metafetch.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "sample.js"
   ],
   "author": "brahma-dev",
   "keywords": [
@@ -44,7 +45,7 @@
     "dev": "tsc -w",
     "test": "mocha --timeout 4000 test && nyc --reporter=lcov ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec --timeout 4000"
   },
-  "tonicExampleFilename": "sample.js",
+  "runkitExampleFilename": "sample.js",
   "engines": {
     "node": ">= 14.0.0"
   },

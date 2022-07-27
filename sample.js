@@ -1,4 +1,5 @@
-import metafetch from 'metafetch';
+//import metafetch from 'metafetch'; // Runkit does not support import
+const metafetch = require("metafetch").default;
 
 metafetch.fetch('http://www.treehugger.com/those-falcon-wing-doors-are-coming-back-haunt-tesla-4858047').then(function(meta) {
 	console.log('Title: ', meta.title);
