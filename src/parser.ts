@@ -121,7 +121,7 @@ export default function (url: string, options: any, body: string, headers: Axios
 	// response.uri = uri;
 
 	if (options.title) {
-		response.title = metaData['og:title'] || title;
+		response.title = title;
 	}
 	if (options.description) {
 		response.description = metaData['og:description'] || metaData.description;

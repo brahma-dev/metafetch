@@ -1,7 +1,7 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",

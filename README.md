@@ -69,7 +69,7 @@ Use NPM to install:
 
 ### Response Data
 
-* `title` : Page title or `og:title` meta tag.
+* `title` : Page title.
 * `description` : Page description or `og:description` meta tag.
 * `image` : `og:image` meta tag.
 * `url` : Page url or `og:url` meta tag.
