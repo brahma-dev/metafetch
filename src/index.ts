@@ -98,7 +98,6 @@ class Metafetch {
 				_.merge(_options, options.flags || {});
 				userAgent = options.userAgent || userAgent;
 			}
-			let redirectCount = 0;
 			axios({
 				method: 'get',
 				url: cleanurl,
@@ -106,6 +105,7 @@ class Metafetch {
 				maxRedirects: http_options.maxRedirects,
 				auth: http_options.auth,
 				proxy: http_options.proxy,
+				timeout: http_options.timeout,
 				maxContentLength: http_options.maxContentLength,
 				responseType: 'arraybuffer',
 			}).then((response) => {
