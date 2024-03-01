@@ -15,7 +15,7 @@ axios.interceptors.response.use(response => {
 	}
 	if (iconv.encodingExists(enc)) {
 		response.data = iconv.decode(response.data, enc);
-	}else{
+	} else {
 		//Fallback to UTF-8
 		response.data = iconv.decode(response.data, "utf-8");
 	}
@@ -48,6 +48,9 @@ interface FetchOptions {
 	}
 }
 
+let franc: ((value?: string | undefined) => string) | ((arg0: string) => string);
+
+
 class Metafetch {
 	public userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0";
 	public setUserAgent(agent: string) {
@@ -56,6 +59,11 @@ class Metafetch {
 		} else {
 			throw new Error("METAFETCH: Invalid User agent supplied");
 		}
+	}
+	constructor(){
+		import('franc').then((f) => {
+			franc = f.franc;
+		})
 	}
 
 	public fetch(url: string, options?: FetchOptions) {
@@ -109,7 +117,7 @@ class Metafetch {
 				maxContentLength: http_options.maxContentLength,
 				responseType: 'arraybuffer',
 			}).then((response) => {
-				let result = parser(cleanurl, _options, response.data, response.headers)
+				let result = parser(cleanurl, _options, response.data, response.headers, franc)
 				resolve(result);
 			}).catch((err) => {
 				if (err.response) {

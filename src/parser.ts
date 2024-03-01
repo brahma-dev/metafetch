@@ -1,9 +1,7 @@
 import cheerio, { CheerioAPI } from "cheerio";
 import { URL } from 'url';
-import franc from "franc";
 import langs, { Language } from "langs";
 import type { AxiosResponseHeaders } from "axios";
-
 export interface MetafetchResponse {
 	title?: string,
 	charset?: string,
@@ -20,7 +18,7 @@ export interface MetafetchResponse {
 	meta?: { [x: string]: string },
 	headers?: AxiosResponseHeaders,
 }
-export default function (url: string, options: any, body: string, headers: AxiosResponseHeaders): MetafetchResponse {
+export default function (url: string, options: any, body: string, headers: AxiosResponseHeaders, franc: ((value?: string | undefined) => string) | ((arg0: string) => string)): MetafetchResponse {
 	if (!body.includes("html"))
 		throw new Error("Invalid HTML");
 	let $: CheerioAPI;
@@ -31,7 +29,6 @@ export default function (url: string, options: any, body: string, headers: Axios
 	$('embed').remove();
 	$('object').remove();
 	$('noscript').remove();
-
 	let response: MetafetchResponse = {};
 	let title;
 	if (options.title) {
