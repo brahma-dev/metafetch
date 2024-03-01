@@ -38,7 +38,7 @@ Use NPM to install:
 #### Optional flags to disable parsing images and links and http timeout or headers
 
     metafetch.fetch('http://www.facebook.com', {
-        userAgent: "User Agent/Defaults to Firefox 58",
+        userAgent: "User Agent/Defaults to Firefox 123 (February 20, 2024)",
         flags: {
             images: false,
             links: false,

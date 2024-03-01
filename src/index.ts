@@ -53,7 +53,7 @@ let franc: ((value?: string | undefined) => string) | ((arg0: string) => string)
 
 
 class Metafetch {
-	private _userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0";
+	private _userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0";
 	public setUserAgent(agent: string) {
 		if (typeof agent == "string") {
 			this._userAgent = agent;
