@@ -4,7 +4,7 @@ import parser, { MetafetchResponse } from "./parser";
 import axios, { AxiosRequestHeaders, AxiosBasicCredentials, AxiosProxyConfig } from "axios";
 
 axios.interceptors.response.use(response => {
-	let enc = (response.headers['content-type'].match(/charset=(.+)/) || []).pop();
+	let enc = (response.headers['content-type']?.match(/charset=(.+)/) || []).pop();
 	if (!enc) {
 		// Extracted from <meta charset="gb2312"> or <meta http-equiv=Content-Type content="text/html;charset=gb2312">
 		enc = (response.data.toString().match(/<meta.+?charset=['"]?([^"']+)/i) || []).pop()
@@ -123,7 +123,7 @@ class Metafetch {
 				maxContentLength: http_options.maxContentLength,
 				responseType: 'arraybuffer',
 			}).then((response) => {
-				let result = parser(cleanurl, _options, response.data, response.headers, franc)
+				let result = parser(cleanurl, _options, response.data?response.data.toString():"", response.headers, franc)
 				resolve(result);
 			}).catch((err) => {
 				if (err.response) {

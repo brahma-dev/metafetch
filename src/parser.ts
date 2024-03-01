@@ -35,7 +35,7 @@ export default function (url: string, options: any, body: string, headers: Axios
 		title = $('title').text();
 	}
 	if (options.charset) {
-		response.charset = $("meta[charset]").attr("charset") || (headers['content-type'].match(/charset=(.+)/) || []).pop();
+		response.charset = $("meta[charset]").attr("charset") || (headers['content-type']?.match(/charset=(.+)/) || []).pop();
 	}
 	if (options.images) {
 		var imagehash: { [x: string]: boolean } = {};
