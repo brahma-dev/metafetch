@@ -123,7 +123,7 @@ class Metafetch {
 				maxContentLength: http_options.maxContentLength,
 				responseType: 'arraybuffer',
 			}).then((response) => {
-				let result = parser(cleanurl, _options, response.data?response.data.toString():"", response.headers, franc)
+				let result = parser(cleanurl, _options, response.data.toString(), response.headers, franc)
 				resolve(result);
 			}).catch((err) => {
 				if (err.response) {
