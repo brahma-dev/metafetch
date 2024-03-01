@@ -1,7 +1,8 @@
 /*jshint mocha: true*/
 var should = require('should'),
 	path = require('path'),
-	fetchog = require(path.join(__dirname, '../dist/index.js')).default;
+	fetchog = require(path.join(__dirname, '../dist/index.js')).default,
+	classog = require(path.join(__dirname, '../dist/index.js')).Metafetch;
 console.log(fetchog)
 //Server for redirects
 var http = require('http');
@@ -58,42 +59,42 @@ describe('server', function () {
 		server3.close();
 		done();
 	});
-	it('should return invalid url error', function(done) {
-		fetchog.fetch("").then((res)=>{
+	it('should return invalid url error', function (done) {
+		fetchog.fetch("").then((res) => {
 			done(res);
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.exist(err);
 			err.message.should.equal("Invalid URL");
 			done();
 		})
 	});
-	it('should not return invalid url error', function(done) {
-		fetchog.fetch("https://www.rediff.com/news/report/what-next-for-uddhav-thackeray/20191123.htm? var = uddhave next cm").then((res)=>{
+	it('should not return invalid url error', function (done) {
+		fetchog.fetch("https://www.rediff.com/news/report/what-next-for-uddhav-thackeray/20191123.htm? var = uddhave next cm").then((res) => {
 			done();
-		}).catch((err)=>{
+		}).catch((err) => {
 			done(err);
 		})
 	});
-	it('should return promise', function(done) {
+	it('should return promise', function (done) {
 		var res = fetchog.fetch("");
 		res.should.be.an.instanceOf(Promise);
 		done();
 	});
-	it('should get a return 404 from npmjs.com', function(done) {
+	it('should get a return 404 from npmjs.com', function (done) {
 		fetchog.fetch('https://npmjs.com/~brahma-dev/nonexistenturl', {
 			flags: {
 				images: false,
 				links: false
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			done(res);
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.exist(err);
 			err.message.should.equal("HTTP:404");
 			done();
 		})
 	});
-	it('should get a meta without error from npmjs.com', function(done) {
+	it('should get a meta without error from npmjs.com', function (done) {
 		fetchog.fetch('https://npmjs.com/~brahma-dev#someanchor', {
 			flags: {
 				images: false,
@@ -102,17 +103,17 @@ describe('server', function () {
 			http: {
 				timeout: 30000
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			should.exist(res);
 			should.exist(res.url);
 			res.url.host.should.equal('npmjs.com');
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should get a meta without error from npmjs.com', function(done) {
+	it('should get a meta without error from npmjs.com', function (done) {
 		fetchog.fetch('https://npmjs.com/~brahma-dev#someanchor', {
 			flags: {
 				title: false,
@@ -131,37 +132,37 @@ describe('server', function () {
 			http: {
 				timeout: 30000
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			should.exist(res);
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should get a meta without error from bbc.com', function(done) {
-		fetchog.fetch('http://www.bbc.com/news/newsbeat-43722444').then((res)=>{
+	it('should get a meta without error from bbc.com', function (done) {
+		fetchog.fetch('http://www.bbc.com/news/newsbeat-43722444').then((res) => {
 			should.exist(res);
 			should.exist(res.url);
 			res.url.host.should.equal('www.bbc.com');
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should get a meta without error from npmjs.com', function(done) {
-		fetchog.fetch('http://npmjs.com/~brahma-dev#someanchor').then((res)=>{
+	it('should get a meta without error from npmjs.com', function (done) {
+		fetchog.fetch('http://npmjs.com/~brahma-dev#someanchor').then((res) => {
 			should.exist(res);
 			should.exist(res.url);
 			res.url.host.should.equal('npmjs.com');
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should get a meta without error from nasa.gov', function(done) {
+	it('should get a meta without error from nasa.gov', function (done) {
 		// www.nasa.gov adds a trailing slash
 		fetchog.fetch('https://www.nasa.gov/technology/carbon-dioxide-fertilization-greening-earth-study-finds/', {
 			flags: {
@@ -171,97 +172,97 @@ describe('server', function () {
 			http: {
 				timeout: 30000
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			should.exist(res);
 			should.exist(res.url);
 			res.url.host.should.equal('www.nasa.gov');
 			res.url.pathname.should.equal('/technology/carbon-dioxide-fertilization-greening-earth-study-finds/');
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should err', function(done) {
+	it('should err', function (done) {
 		fetchog.fetch('http://0.0.0.0/test.pdf', {
 			http: {
 				timeout: 1500
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			done(res);
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.exist(err);
 			err.message.should.equal("Invalid URL");
 			done();
 		})
 	});
-	it('should get a meta without error from nasa.gov', function(done) {
+	it('should get a meta without error from nasa.gov', function (done) {
 		// www.nasa.gov adds a trailing slash
-		fetchog.fetch('http://www.nasa.gov/technology/carbon-dioxide-fertilization-greening-earth-study-finds/').then((res)=>{
+		fetchog.fetch('http://www.nasa.gov/technology/carbon-dioxide-fertilization-greening-earth-study-finds/').then((res) => {
 			should.exist(res);
 			should.exist(res.url);
 			res.url.host.should.equal('www.nasa.gov');
 			res.url.pathname.should.equal('/technology/carbon-dioxide-fertilization-greening-earth-study-finds/');
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should get a meta without error from test server for invalid links', function(done) {
-		fetchog.fetch('http://127.0.0.1:2445/').then((res)=>{
+	it('should get a meta without error from test server for invalid links', function (done) {
+		fetchog.fetch('http://127.0.0.1:2445/').then((res) => {
 			should.exist(res);
 			should.exist(res.url);
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should verify http headers', function(done) {
-		fetchog.fetch('http://127.0.0.1:2445/').then((res)=>{
+	it('should verify http headers', function (done) {
+		fetchog.fetch('http://127.0.0.1:2445/').then((res) => {
 			should.exist(res);
 			should.exist(res.headers);
 			should.exist(res.headers['content-type']);
 			done()
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.not.exist(err);
 			done(err);
 		});
 	});
-	it('should redirect too many times.', function(done) {
+	it('should redirect too many times.', function (done) {
 		fetchog.fetch('http://127.0.0.1:2444/', {
 			http: {
 				timeout: 1500
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			done(res);
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.exist(err);
 			err.message.should.equal("Maximum number of redirects exceeded");
 			done();
 		})
 	});
-	it('should err', function(done) {
+	it('should err', function (done) {
 		fetchog.fetch('http://0.0.0.0/', {
 			http: {
 				timeout: 1500
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			done(res);
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.exist(err);
 			done();
 		})
 	});
-	it('should timeout', function(done) {
+	it('should timeout', function (done) {
 		fetchog.fetch('http://127.0.0.1:2444/', {
 			http: {
 				timeout: 1
 			}
-		}).then((res)=>{
+		}).then((res) => {
 			done(res);
-		}).catch((err)=>{
+		}).catch((err) => {
 			should.exist(err);
 			done();
 		})
@@ -307,6 +308,11 @@ describe('server', function () {
 			should.exist(err);
 			done();
 		})
+	});
+	it('new instance with user agent without error', function (done) {
+		const instance0 = new classog("GOOGLEBOT");
+		instance0.userAgent.should.equal('GOOGLEBOT');
+		done();
 	});
 	it('should set user agent without error', function (done) {
 		var err;

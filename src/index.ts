@@ -52,18 +52,24 @@ let franc: ((value?: string | undefined) => string) | ((arg0: string) => string)
 
 
 class Metafetch {
-	public userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0";
+	private _userAgent: string = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0";
 	public setUserAgent(agent: string) {
 		if (typeof agent == "string") {
-			this.userAgent = agent;
+			this._userAgent = agent;
 		} else {
 			throw new Error("METAFETCH: Invalid User agent supplied");
 		}
 	}
-	constructor(){
+	get userAgent() {
+		return this._userAgent;
+	}
+	constructor(ua?: string) {
 		import('franc').then((f) => {
 			franc = f.franc;
-		})
+		});
+		if (ua) {
+			this._userAgent = ua;
+		}
 	}
 
 	public fetch(url: string, options?: FetchOptions) {
@@ -80,7 +86,7 @@ class Metafetch {
 				timeout: 20000,
 				headers: {
 					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-					'User-Agent': this.userAgent
+					'User-Agent': this._userAgent
 				},
 				maxRedirects: 5
 			};
@@ -98,7 +104,7 @@ class Metafetch {
 				headers: true,
 				language: true
 			};
-			let userAgent = this.userAgent;
+			let userAgent = this._userAgent;
 			if (typeof options === 'object') {
 				_.merge(http_options.headers, options.http?.headers || {});
 				http_options.timeout = options.http?.timeout || http_options.timeout;
@@ -141,5 +147,5 @@ class Metafetch {
 }
 
 const exportobj = new Metafetch();
-
+export { Metafetch }
 export default exportobj;
