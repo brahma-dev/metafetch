@@ -2,6 +2,7 @@ import _ from "lodash";
 import iconv from 'iconv-lite';
 import parser, { MetafetchResponse } from "./parser";
 import axios, { AxiosRequestHeaders, AxiosBasicCredentials, AxiosProxyConfig } from "axios";
+import { AxiosHeaders } from "axios";
 
 axios.interceptors.response.use(response => {
 	let enc = (response.headers['content-type']?.match(/charset=(.+)/) || []).pop();
@@ -84,10 +85,10 @@ class Metafetch {
 			}
 			const http_options: FetchOptions["http"] = {
 				timeout: 20000,
-				headers: {
+				headers: new AxiosHeaders({
 					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
 					'User-Agent': this._userAgent
-				},
+				}),
 				maxRedirects: 5
 			};
 			const _options = {
@@ -106,11 +107,11 @@ class Metafetch {
 			};
 			let userAgent = this._userAgent;
 			if (typeof options === 'object') {
-				_.merge(http_options.headers, options.http?.headers || {});
 				http_options.timeout = options.http?.timeout || http_options.timeout;
 				http_options.maxRedirects = options.http?.maxRedirects || http_options.maxRedirects;
 				_.merge(_options, options.flags || {});
 				userAgent = options.userAgent || userAgent;
+				http_options.headers?.set( options.http?.headers || {});
 			}
 			axios({
 				method: 'get',

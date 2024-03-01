@@ -1,7 +1,7 @@
 import cheerio, { CheerioAPI } from "cheerio";
 import { URL } from 'url';
 import langs, { Language } from "langs";
-import type { AxiosResponseHeaders } from "axios";
+import { RawAxiosRequestHeaders } from "axios";
 export interface MetafetchResponse {
 	title?: string,
 	charset?: string,
@@ -16,9 +16,9 @@ export interface MetafetchResponse {
 	siteName?: string,
 	image?: string,
 	meta?: { [x: string]: string },
-	headers?: AxiosResponseHeaders,
+	headers?: RawAxiosRequestHeaders,
 }
-export default function (url: string, options: any, body: string, headers: AxiosResponseHeaders, franc: ((value?: string | undefined) => string) | ((arg0: string) => string)): MetafetchResponse {
+export default function (url: string, options: any, body: string, headers: RawAxiosRequestHeaders, franc: ((value?: string | undefined) => string) | ((arg0: string) => string)): MetafetchResponse {
 	if (!body.includes("html"))
 		throw new Error("Invalid HTML");
 	let $: CheerioAPI;
@@ -35,7 +35,7 @@ export default function (url: string, options: any, body: string, headers: Axios
 		title = $('title').text();
 	}
 	if (options.charset) {
-		response.charset = $("meta[charset]").attr("charset") || (headers['content-type']?.match(/charset=(.+)/) || []).pop();
+		response.charset = $("meta[charset]").attr("charset") || (headers['content-type']?.toString().match(/charset=(.+)/) || []).pop();
 	}
 	if (options.images) {
 		var imagehash: { [x: string]: boolean } = {};
@@ -106,7 +106,7 @@ export default function (url: string, options: any, body: string, headers: Axios
 		}
 	});
 	if (options.language) {
-		response.language = $("html").attr("lang") || $("html").attr("xml:lang") || headers["Content-Language"] || headers["content-language"];
+		response.language = $("html").attr("lang") || $("html").attr("xml:lang") || headers["Content-Language"]?.toString() || headers["content-language"]?.toString();
 		if (typeof response.language == "string") {
 			response.language = response.language.split("-")[0];
 		} else {

@@ -3,7 +3,6 @@ var should = require('should'),
 	path = require('path'),
 	fetchog = require(path.join(__dirname, '../dist/index.js')).default,
 	classog = require(path.join(__dirname, '../dist/index.js')).Metafetch;
-console.log(fetchog)
 //Server for redirects
 var http = require('http');
 var server1;
@@ -233,7 +232,8 @@ describe('server', function () {
 	it('should redirect too many times.', function (done) {
 		fetchog.fetch('http://127.0.0.1:2444/', {
 			http: {
-				timeout: 1500
+				timeout: 1500,
+				headers: { "X-Hello": 1 }
 			}
 		}).then((res) => {
 			done(res);
