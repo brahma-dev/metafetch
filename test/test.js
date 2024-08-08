@@ -270,7 +270,7 @@ describe('server', function () {
 	it('should fetch Non UTF encoding', function (done) {
 		fetchog.fetch('https://cafe.naver.com/joonggonara', {
 			http: {
-				timeout: 6000
+				timeout: 3000
 			}
 		}).then((res) => {
 			should.exist(res);
@@ -281,6 +281,7 @@ describe('server', function () {
 			res.language.should.equal("ko");
 			done()
 		}).catch((err) => {
+			console.error(err);
 			should.not.exist(err);
 			done(err);
 		});
