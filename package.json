@@ -1,11 +1,11 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "3.1.6",
+  "version": "3.1.7",
   "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",
-    "url": "git://github.com/brahma-dev/metafetch.git"
+    "url": "https://github.com/brahma-dev/metafetch"
   },
   "files": [
     "dist",
