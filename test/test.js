@@ -163,7 +163,7 @@ describe('server', function () {
 	});
 	it('should get a meta without error from nasa.gov', function (done) {
 		// www.nasa.gov adds a trailing slash
-		fetchog.fetch('https://www.nasa.gov/technology/carbon-dioxide-fertilization-greening-earth-study-finds/', {
+		fetchog.fetch('https://www.nasa.gov/centers-and-facilities/goddard/carbon-dioxide-fertilization-greening-earth-study-finds/', {
 			flags: {
 				images: false,
 				links: false
@@ -175,9 +175,10 @@ describe('server', function () {
 			should.exist(res);
 			should.exist(res.url);
 			res.url.host.should.equal('www.nasa.gov');
-			res.url.pathname.should.equal('/technology/carbon-dioxide-fertilization-greening-earth-study-finds/');
+			res.url.pathname.should.equal('/centers-and-facilities/goddard/carbon-dioxide-fertilization-greening-earth-study-finds/');
 			done()
 		}).catch((err) => {
+			console.error(err);
 			should.not.exist(err);
 			done(err);
 		});
@@ -197,11 +198,11 @@ describe('server', function () {
 	});
 	it('should get a meta without error from nasa.gov', function (done) {
 		// www.nasa.gov adds a trailing slash
-		fetchog.fetch('http://www.nasa.gov/technology/carbon-dioxide-fertilization-greening-earth-study-finds/').then((res) => {
+		fetchog.fetch('http://www.nasa.gov/centers-and-facilities/goddard/carbon-dioxide-fertilization-greening-earth-study-finds/').then((res) => {
 			should.exist(res);
 			should.exist(res.url);
 			res.url.host.should.equal('www.nasa.gov');
-			res.url.pathname.should.equal('/technology/carbon-dioxide-fertilization-greening-earth-study-finds/');
+			res.url.pathname.should.equal('/centers-and-facilities/goddard/carbon-dioxide-fertilization-greening-earth-study-finds/');
 			done()
 		}).catch((err) => {
 			should.not.exist(err);
