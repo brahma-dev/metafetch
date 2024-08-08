@@ -269,7 +269,7 @@ describe('server', function () {
 		})
 	});
 	it('should fetch Non UTF encoding', function (done) {
-		fetchog.fetch('http://cafe.naver.com/joonggonara', {
+		fetchog.fetch('https://cafe.naver.com/joonggonara', {
 			http: {
 				timeout: 3000
 			}
