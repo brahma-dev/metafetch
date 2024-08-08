@@ -178,7 +178,6 @@ describe('server', function () {
 			res.url.pathname.should.equal('/centers-and-facilities/goddard/carbon-dioxide-fertilization-greening-earth-study-finds/');
 			done()
 		}).catch((err) => {
-			console.error(err);
 			should.not.exist(err);
 			done(err);
 		});
@@ -271,7 +270,7 @@ describe('server', function () {
 	it('should fetch Non UTF encoding', function (done) {
 		fetchog.fetch('https://cafe.naver.com/joonggonara', {
 			http: {
-				timeout: 3000
+				timeout: 6000
 			}
 		}).then((res) => {
 			should.exist(res);
