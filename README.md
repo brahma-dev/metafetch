@@ -92,7 +92,7 @@ Use NPM to install:
 -  `links` : All links on this page.
 -  `meta` : All the meta tags that with a `property` or `name` attribute. e.g `<meta property="author" content="Example">`, `<meta name="description" content="Example.">`
 -  `headers` : HTTP headers, lowercasing field names much like node does.
--  `language` : Content language (ISO 639-1) based on meta data/headers, falling back to detection by [franc](https://www.npmjs.com/package/franc).
+-  `language` : Content language (ISO 639-1) based on meta data/headers.
 
 ## License
 

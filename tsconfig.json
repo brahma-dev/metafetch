@@ -1,33 +1,15 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Default",
   "compilerOptions": {
-    "target": "ES2020",
-    "composite": false,
-    "declaration": true,
-    "declarationMap": true,
+    "target": "ES2022",                // Node 18 fully supports ES2022 features
+    "module": "ES2022",                 // **CHANGE THIS**: Generates standard ESM
+    "moduleResolution": "Node",         // **CHANGE THIS**: The classic resolution for Node
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "inlineSources": false,
-    "isolatedModules": true,
-    "moduleResolution": "Node16",
-    "module": "Node16",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "preserveWatchOutput": true,
-    "skipLibCheck": true,
     "strict": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "sourceMap": true,
-    "rootDir": "src",
-    "outDir": "dist"
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "declaration": true
   },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "include": [
-    "src"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
