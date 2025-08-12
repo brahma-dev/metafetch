@@ -1,6 +1,14 @@
 {
   "loader": "ts-node/esm",
-  "extensions": ["ts"],
-  "spec": ["test/*.ts"],
-  "timeout": "4000ms"
+  "extensions": [
+    "ts"
+  ],
+  "spec": [
+    "test/*.ts"
+  ],
+  "timeout": "4000ms",
+  "reporter": "mocha-junit-reporter",
+  "reporter-option": [
+    "mochaFile=./test-report.junit.xml"
+  ]
 }
