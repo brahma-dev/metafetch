@@ -1,7 +1,7 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",
@@ -34,11 +34,12 @@
     "coveralls": "^3.1.1",
     "mocha": "^11.7.1",
     "mocha-lcov-reporter": "^1.3.0",
+    "terser": "^5.43.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && terser dist/index.js -o dist/index.js -c -m",
     "dev": "tsc -w",
     "test": "mocha",
     "coverage": "c8 --reporter=text --reporter=lcovonly npm test"
