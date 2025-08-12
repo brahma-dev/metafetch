@@ -5,8 +5,6 @@
 [![Coverage](https://img.shields.io/coveralls/brahma-dev/metafetch.svg?style=flat-square)](https://coveralls.io/github/brahma-dev/metafetch)
 [![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg?style=flat-square)](https://snyk.io/test/npm/metafetch)
 
-[![Try metafetch on RunKit](https://badge.runkitcdn.com/metafetch.svg)](https://npm.runkit.com/metafetch)
-
 Metafetch fetches a given URL's title, description, images, links etc.
 
 ## Installation
