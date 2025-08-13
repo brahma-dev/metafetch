@@ -117,6 +117,7 @@ export class Metafetch {
 				result.charset = encoding;
 			}
 			this._extractMeta(document, result, flags);
+			this._extractStructuredData(document, result, flags);
 			this._extractUrls(document, response, result, flags);
 			this._extractAssets(document, result, flags);
 
@@ -224,6 +225,36 @@ export class Metafetch {
 			});
 			result.links = [...linkHrefs];
 		}
+	}
+
+	private _extractStructuredData(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		if (!flags.meta) return;
+
+		doc.querySelectorAll('script[type="application/ld+json"]').forEach(script => {
+			try {
+				const json = JSON.parse(script.textContent || '{}');
+				if (typeof json === 'object' && json !== null) {
+					const ldMeta = result.meta!;
+					for (const key in json) {
+						if (json.hasOwnProperty(key)) {
+							if (typeof json[key] === 'string') {
+								ldMeta[`ld:${key}`] = json[key];
+							} else if (typeof json[key] === 'object' && json[key] !== null && !Array.isArray(json[key])) {
+								for (const subKey in json[key]) {
+									if (json[key].hasOwnProperty(subKey)) {
+										ldMeta[`ld:${key}:${subKey}`] = json[key][subKey];
+									}
+								}
+							}
+
+						}
+					}
+					result.meta = ldMeta;
+				}
+			} catch (e) {
+				console.warn('Error parsing JSON-LD:', e);
+			}
+		});
 	}
 }
 

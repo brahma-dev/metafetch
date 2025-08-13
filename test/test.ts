@@ -7,7 +7,7 @@ describe('Metafetch: Final Optimized Tests', () => {
 	let serverInvalidAssets: Server, serverUaEcho: Server, serverEmptyBody: Server,
 		serverPrimaryMeta: Server, serverBaseTag: Server, serverCharset: Server,
 		serverFallbackMeta: Server, serverAssetFallback: Server, serverBaseNoHref: Server,
-		serverMalformedAssets: Server, serverAmp: Server, serverHttp: Server;
+		serverMalformedAssets: Server, serverAmp: Server, serverHttp: Server, serverJsonLd: Server;
 
 	before((done) => {
 		serverInvalidAssets = http.createServer((req, res) => {
@@ -48,14 +48,39 @@ describe('Metafetch: Final Optimized Tests', () => {
 			else if (req.url?.startsWith('/page')) res.setHeader('Content-Type', 'text/html').end('<html><title>T</title></html>');
 			else res.setHeader('Content-Type', 'application/pdf').end('%PDF-1.4');
 		}).listen(2511, '127.0.0.1');
-		serverHttp.on('listening', done);
+		serverJsonLd = http.createServer((req, res) => {
+			res.setHeader('Content-Type', 'text/html');
+			let body = '';
+			switch (req.url) {
+				case '/basic':
+					body = `<html><head><script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":"Article Headline"}</script></head></html>`;
+					break;
+				case '/nested':
+					body = `<html><head><script type="application/ld+json">{"@context":"https://schema.org","author":{"@type":"Person","name":"Jane Doe"}, "unsupported": ["item1", "item2"]}</script></head></html>`;
+					break;
+				case '/malformed':
+					body = `<html><head><meta name="description" content="Good"><script type="application/ld+json">{ "key": "value", </script></head></html>`;
+					break;
+				case '/multiple':
+					body = `<html><head><meta name="description" content="A page with two scripts."><script type="application/ld+json">{"@type":"Organization","name":"My Company"}</script><script type="application/ld+json">{"@type":"WebSite","url":"https://example.com"}</script></head></html>`;
+					break;
+				case '/empty':
+					body = `<html><head><script type="application/ld+json"></script></head></html>`;
+					break;
+				case '/non_object':
+					body = `<html><head><script type="application/ld+json">"this is a string, not an object"</script></head></html>`;
+					break;
+			}
+			res.end(body);
+		}).listen(2512, '127.0.0.1');
+		serverJsonLd.on('listening', done);
 	});
 
 	after(() => {
 		serverInvalidAssets.close(); serverUaEcho.close(); serverEmptyBody.close();
 		serverPrimaryMeta.close(); serverBaseTag.close(); serverCharset.close();
 		serverFallbackMeta.close(); serverAssetFallback.close(); serverBaseNoHref.close();
-		serverMalformedAssets.close(); serverAmp.close(); serverHttp.close();
+		serverMalformedAssets.close(); serverAmp.close(); serverHttp.close(); serverJsonLd.close();
 	});
 
 	// --- Test Suites ---
@@ -65,7 +90,7 @@ describe('Metafetch: Final Optimized Tests', () => {
 		it((++counter).toString().padStart(2, '0') + '. should return a Promise', () => {
 			const promise = new Metafetch().fetch('http://127.0.0.1:2511/page');
 			expect(promise).to.be.an.instanceOf(Promise);
-			promise.catch(() => {}); // Suppress unhandled rejection warning
+			promise.catch(() => { });
 		});
 
 		it((++counter).toString().padStart(2, '0') + '. should reject with an error for an empty URL', async () => {
@@ -103,7 +128,7 @@ describe('Metafetch: Final Optimized Tests', () => {
 			}
 		});
 	});
-	
+
 	describe('3. User-Agent Management', () => {
 		let counter = 0;
 		it((++counter).toString().padStart(2, '0') + '. should manage the instance user agent correctly', () => {
@@ -204,6 +229,68 @@ describe('Metafetch: Final Optimized Tests', () => {
 			expect(res.links).to.be.undefined;
 			expect(res.url).to.not.be.undefined;
 			expect(res.images).to.be.an('array').that.is.not.empty;
+		});
+	});
+
+	describe('7. Structured Data (JSON-LD)', () => {
+		let counter = 0;
+		const instance = new Metafetch();
+
+		it((++counter).toString().padStart(2, '0') + '. should extract basic, flat JSON-LD data', async () => {
+			const res = await instance.fetch('http://127.0.0.1:2512/basic');
+			expect(res.meta).to.deep.include({
+				'ld:@context': 'https://schema.org',
+				'ld:@type': 'NewsArticle',
+				'ld:headline': 'Article Headline'
+			});
+		});
+
+		it((++counter).toString().padStart(2, '0') + '. should extract and flatten nested JSON-LD data', async () => {
+			const res = await instance.fetch('http://127.0.0.1:2512/nested');
+			expect(res.meta).to.deep.include({
+				'ld:@context': 'https://schema.org',
+				'ld:author:@type': 'Person',
+				'ld:author:name': 'Jane Doe'
+			});
+			// The current implementation doesn't handle arrays, so 'unsupported' should not exist
+			expect(res.meta).to.not.have.property('ld:unsupported');
+		});
+
+		it((++counter).toString().padStart(2, '0') + '. should handle malformed JSON-LD gracefully without crashing', async () => {
+			const res = await instance.fetch('http://127.0.0.1:2512/malformed');
+			// Regular meta tags should still be parsed
+			expect(res.meta!.description).to.equal('Good');
+			// Malformed ld+json should not add any 'ld:' keys
+			const ldKeys = Object.keys(res.meta!).filter(k => k.startsWith('ld:'));
+			expect(ldKeys).to.be.empty;
+		});
+
+		it((++counter).toString().padStart(2, '0') + '. should merge data from multiple JSON-LD scripts', async () => {
+			const res = await instance.fetch('http://127.0.0.1:2512/multiple');
+			// Note: The current implementation overwrites duplicate keys.
+			expect(res.meta).to.deep.equal({
+				'description': 'A page with two scripts.',
+				'ld:@type': 'WebSite', // Overwritten by second script
+				'ld:name': 'My Company',
+				'ld:url': 'https://example.com'
+			});
+		});
+
+		it((++counter).toString().padStart(2, '0') + '. should not extract JSON-LD when meta flag is disabled', async () => {
+			const res = await instance.fetch('http://127.0.0.1:2512/basic', { flags: { meta: false } });
+			expect(res.meta).to.be.undefined;
+		});
+
+		it((++counter).toString().padStart(2, '0') + '. should handle an empty JSON-LD script tag', async () => {
+			const res = await instance.fetch('http://127.0.0.1:2512/empty');
+			expect(res.meta).to.be.an('object').that.is.empty;
+		});
+
+		it((++counter).toString().padStart(2, '0') + '. should ignore JSON-LD content that is not a JSON object', async () => {
+			const res = await instance.fetch('http://127.0.0.1:2512/non_object');
+			expect(res.meta).to.be.an('object').that.is.empty;
+			const ldKeys = Object.keys(res.meta!).filter(k => k.startsWith('ld:'));
+			expect(ldKeys).to.be.empty;
 		});
 	});
 });
