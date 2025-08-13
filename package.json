@@ -1,7 +1,7 @@
 {
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",
@@ -25,7 +25,12 @@
     "linkedom": "^0.18.11"
   },
   "peerDependencies": {
-    "puppeteer": "^24.16.1"
+    "puppeteer": ">=22.0.0 <25.0.0"
+  },
+  "peerDependenciesMeta": {
+    "puppeteer": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",

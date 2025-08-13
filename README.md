@@ -1,12 +1,26 @@
 # Node metafetch
 
 [![Build Status](https://github.com/brahma-dev/metafetch/actions/workflows/build.yml/badge.svg)](https://github.com/brahma-dev/metafetch/actions/workflows/build.yml)
-[![codecov](https://codecov.io/gh/brahma-dev/metafetch/branch/master/graph/badge.svg)](https://codecov.io/gh/brahma-dev/metafetch)
+[![codecov](https://codecov.io/gh/brahma-dev/metafetch/branch/main/graph/badge.svg)](https://codecov.io/gh/brahma-dev/metafetch)
 [![coveralls](https://coveralls.io/repos/github/brahma-dev/metafetch/badge.svg?branch=main)](https://coveralls.io/github/brahma-dev/metafetch?branch=main)
 [![Known Vulnerabilities](https://snyk.io/test/npm/metafetch/badge.svg?style=flat)](https://snyk.io/test/npm/metafetch)
 [![NPM version](https://img.shields.io/npm/v/metafetch.svg?style=flat)](https://www.npmjs.org/package/metafetch)
 
 **Metafetch** is a library to fetch and parse metadata from a web page. It can extract standard meta tags, Open Graph data, JSON-LD, favicons, and feeds, and even render client-side JavaScript to get data from Single-Page Applications (SPAs).
+
+## Table of Contents
+
+-   [Key Features](#key-features)
+-   [Installation](#installation)
+-   [Usage](#usage)
+    -   [Basic Example](#basic-example)
+    -   [Advanced Example (Rendering SPAs & Retries)](#advanced-example-rendering-spas--retries)
+-   [API](#api)
+    -   [`metafetch.fetch(url, [options])`](#metafetchfetchurl-options)
+    -   [Available Flags](#available-flags)
+-   [Instance Management](#instance-management)
+-   [Response Data](#response-data)
+-   [License](#license)
 
 ## Key Features
 
@@ -25,9 +39,10 @@
 Use NPM to install:
 
 ```bash
-npm install metafetch puppeteer
+npm install metafetch
 ```
-*Note: `puppeteer` is a peer dependency and must be installed separately if you want to use the client-side rendering feature.*
+
+*Note: **`puppeteer`** is a peer dependency and must be installed separately (`npm install puppeteer`) if you want to use the SPA / client-side rendering feature.*
 
 ## Usage
 
@@ -59,6 +74,7 @@ This will output a representative object like this:
   type: 'article',
   url: 'https://example.com/article-path',
   originalURL: 'https://example.com',
+  ampURL: 'https://example.com/article-path/amp',
   siteName: 'Example News',
   charset: 'utf-8',
   image: 'https://example.com/images/featured-image.png',

@@ -37,7 +37,7 @@ describe('Metafetch: Optimized Tests', () => {
 					res.setHeader('Content-Type', 'text/html; charset=iso-8859-1').end('<body></body>');
 					return;
 				case '/charset-meta':
-					res.setHeader('Content-Type', 'text/html'); 
+					res.setHeader('Content-Type', 'text/html');
 					body = '<head><meta charset="windows-1252"></head>';
 					break;
 				case '/base-tag':
@@ -468,6 +468,21 @@ describe('Metafetch: Optimized Tests', () => {
 				throw new Error("Should have failed");
 			} catch (err: any) {
 				expect(err.message).to.equal("Received an empty response body.");
+			}
+		});
+
+		it('should throw a helpful error when puppeteer fails to import', async () => {
+			const newInstance = new Metafetch();
+			// Stub the private method to simulate an import failure
+			const importStub = sinon.stub(newInstance as any, '_getPuppeteer').rejects(new Error('Simulated import failure'));
+
+			try {
+				await newInstance.fetch(`${BASE_URL}/page`, { render: true });
+				throw new Error("Test failed: Metafetch should have thrown an error.");
+			} catch (err: any) {
+				expect(err.message).to.equal('The "render" option requires the "puppeteer" package. Please install it (`npm install puppeteer`) and try again.');
+			} finally {
+				importStub.restore();
 			}
 		});
 	});

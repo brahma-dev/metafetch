@@ -1,6 +1,5 @@
 import { parseHTML } from 'linkedom';
 import type { Document } from 'linkedom';
-import puppeteer from 'puppeteer';
 
 /**
  * The shape of the response object returned by Metafetch.
@@ -81,6 +80,14 @@ export class Metafetch {
 	}
 
 	/**
+	 * Wrapper for dynamic import of puppeteer to improve testability.
+	 * @private
+	 */
+	private async _getPuppeteer() {
+		return import('puppeteer');
+	}
+
+	/**
 	 * Fetches and parses metadata from a given URL.
 	 * @param url The URL to fetch.
 	 * @param options Configuration for the fetch request.
@@ -112,6 +119,15 @@ export class Metafetch {
 				let encoding: string;
 
 				if (options.render) {
+					let puppeteer;
+					try {
+						const puppeteerModule = await this._getPuppeteer();
+						puppeteer = puppeteerModule.default;
+					} catch (err) {
+						throw new Error(
+							'The "render" option requires the "puppeteer" package. Please install it (`npm install puppeteer`) and try again.'
+						);
+					}
 					const browser = await puppeteer.launch({
 						headless: true, args: [
 							'--no-sandbox',
