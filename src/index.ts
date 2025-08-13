@@ -1,8 +1,10 @@
 import { parseHTML } from 'linkedom';
 import type { Document } from 'linkedom';
+import puppeteer from 'puppeteer';
 
-// --- Type Definitions ---
-
+/**
+ * The shape of the response object returned by Metafetch.
+ */
 export interface MetafetchResponse {
 	title?: string;
 	description?: string;
@@ -18,6 +20,8 @@ export interface MetafetchResponse {
 	links?: string[];
 	headers?: Record<string, string>;
 	language?: string;
+	favicon?: string;
+	feeds?: string[];
 }
 
 type FlagOptions = {
@@ -33,17 +37,23 @@ type FlagOptions = {
 	links?: boolean;
 	headers?: boolean;
 	language?: boolean;
+	favicon?: boolean;
+	feeds?: boolean;
 };
 
 type ResolvedFlags = Required<FlagOptions>;
 
+/**
+ * Configuration options for a metafetch request.
+ */
 export interface FetchOptions {
 	userAgent?: string;
 	fetch?: RequestInit;
 	flags?: FlagOptions;
+	render?: boolean;
+	retries?: number;
+	retryDelay?: number;
 }
-
-// --- The Core Class ---
 
 export class Metafetch {
 	#userAgent: string;
@@ -70,76 +80,161 @@ export class Metafetch {
 		return this.#userAgent;
 	}
 
-
+	/**
+	 * Fetches and parses metadata from a given URL.
+	 * @param url The URL to fetch.
+	 * @param options Configuration for the fetch request.
+	 * @returns A promise that resolves to a MetafetchResponse object.
+	 */
 	public async fetch(url: string, options: FetchOptions = {}): Promise<MetafetchResponse> {
 		if (typeof url !== "string" || !url) {
 			throw new Error("Invalid URL: URL must be a non-empty string.");
 		}
 
-		const cleanUrl = url.split("#")[0];
+		const retries = options.retries ?? 0;
+		const retryDelay = options.retryDelay ?? 1000;
 
-		const requestOptions: RequestInit = {
-			method: 'GET',
-			redirect: 'follow',
-			...options.fetch,
-			headers: {
-				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-				'User-Agent': options.userAgent || this.#userAgent,
-				...options.fetch?.headers,
-			},
-		};
+		for (let attempt = 0; attempt <= retries; attempt++) {
+			try {
+				const cleanUrl = url.split("#")[0];
 
-		const flags: ResolvedFlags = {
-			title: true, description: true, type: true, url: true,
-			siteName: true, charset: true, image: true, meta: true,
-			images: true, links: true, headers: true, language: true,
-			...(options.flags || {}),
-		};
+				const flags: ResolvedFlags = {
+					title: true, description: true, type: true, url: true,
+					siteName: true, charset: true, image: true, meta: true,
+					images: true, links: true, headers: true, language: true,
+					favicon: true, feeds: true,
+					...(options.flags || {}),
+				};
 
-		try {
-			const response = await fetch(cleanUrl, requestOptions);
+				let html: string;
+				let finalUrl: string;
+				let responseHeaders: Record<string, string> = {};
+				let encoding: string;
 
-			if (!response.ok) {
-				throw new Error(`Request failed with status: ${response.status} ${response.statusText}`);
-			}
+				if (options.render) {
+					const browser = await puppeteer.launch({
+						headless: true, args: [
+							'--no-sandbox',
+							'--disable-setuid-sandbox',
+							'--disable-dev-shm-usage'
+						]
+					});
+					const page = await browser.newPage();
+					try {
+						await page.setUserAgent(options.userAgent || this.#userAgent);
+						const response = await page.goto(cleanUrl, { waitUntil: 'networkidle0' });
 
-			const buffer = await response.arrayBuffer();
+						if (!response) {
+							throw new Error("Puppeteer navigation failed to return a response.");
+						}
+						if (!response.ok()) {
+							throw new Error(`Request failed with status: ${response.status()} ${response.statusText()}`);
+						}
 
-			if (buffer.byteLength === 0) {
-				throw new Error("Received an empty response body.");
-			}
-			const encoding = this._detectEncoding(response.headers.get('content-type'), buffer);
-			const html = new TextDecoder(encoding).decode(buffer);
-			const { document } = parseHTML(html);
+						const puppeteerBuffer = await response.buffer();
+						if (puppeteerBuffer.byteLength === 0) {
+							throw new Error("Received an empty response body.");
+						}
 
-			const result: MetafetchResponse = { originalURL: cleanUrl };
-			if (flags.charset) {
-				result.charset = encoding;
-			}
-			this._extractMeta(document, result, flags);
-			this._extractStructuredData(document, result, flags);
-			this._extractUrls(document, response, result, flags);
-			this._extractAssets(document, result, flags);
+						const arrayBuffer = new Uint8Array(puppeteerBuffer).buffer;
 
-			if (flags.headers) {
-				result.headers = {};
-				response.headers.forEach((value, key) => { result.headers![key] = value; });
-			}
+						responseHeaders = response.headers();
+						finalUrl = page.url();
+						encoding = this._detectCharset(responseHeaders['content-type'], arrayBuffer);
+						html = await page.content();
 
-			if (flags.language) {
-				const rawLang = document.documentElement?.lang || response.headers.get('content-language')?.split(',')[0].trim();
-				if (rawLang) {
-					result.language = rawLang.split('-')[0];
+					} finally {
+						await browser.close();
+					}
+				} else {
+					const requestOptions: RequestInit = {
+						method: 'GET',
+						redirect: 'follow',
+						...options.fetch,
+						headers: {
+							'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+							'User-Agent': options.userAgent || this.#userAgent,
+							...options.fetch?.headers,
+						},
+					};
+					const response = await fetch(cleanUrl, requestOptions);
+
+					if (!response.ok) {
+						throw new Error(`Request failed with status: ${response.status} ${response.statusText}`);
+					}
+
+					const buffer = await response.arrayBuffer();
+					if (buffer.byteLength === 0) {
+						throw new Error("Received an empty response body.");
+					}
+					finalUrl = response.url;
+					response.headers.forEach((value, key) => { responseHeaders[key] = value; });
+
+					encoding = this._detectCharset(responseHeaders['content-type'], buffer);
+					html = new TextDecoder(encoding).decode(buffer);
 				}
-			}
 
-			return result;
-		} catch (error) {
-			throw error;
+				const { document } = parseHTML(html);
+				const result: MetafetchResponse = { originalURL: cleanUrl };
+
+				if (flags.charset) {
+					result.charset = encoding;
+				}
+
+				this._extractMeta(document, result, flags);
+				this._extractStructuredData(document, result, flags);
+				this._extractUrls(document, { url: finalUrl }, result, flags);
+				this._extractAssets(document, result, flags);
+				this._extractFavicon(document, result, flags);
+				this._extractFeeds(document, result, flags);
+
+				if (flags.headers) {
+					result.headers = responseHeaders;
+				}
+
+				if (flags.language) {
+					const rawLang = document.documentElement?.lang || responseHeaders['content-language']?.split(',')[0].trim();
+					if (rawLang) {
+						result.language = rawLang.split('-')[0];
+					}
+				}
+
+				return result;
+			} catch (error) {
+				if (attempt === retries) {
+					throw error;
+				}
+
+				// Wait using exponential backoff with jitter before retrying.
+				const delay = (retryDelay * (2 ** attempt)) + Math.random() * 250;
+				await new Promise(resolve => setTimeout(resolve, delay));
+			}
 		}
+
+		throw new Error("Metafetch failed after all retry attempts.");
 	}
 
-	private _detectEncoding(contentTypeHeader: string | null, buffer: ArrayBuffer): string {
+	/**
+	 * Detects character encoding from a buffer with a specific priority order:
+	 * 1. Byte Order Mark (BOM)
+	 * 2. Content-Type HTTP header
+	 * 3. XML encoding declaration
+	 * 4. HTML meta tag
+	 * 5. Defaults to utf-8
+	 */
+	private _detectCharset(contentTypeHeader: string | null, buffer: ArrayBuffer): string {
+		const view = new Uint8Array(buffer);
+
+		if (view.length >= 3 && view[0] === 0xEF && view[1] === 0xBB && view[2] === 0xBF) {
+			return 'utf-8';
+		}
+		if (view.length >= 2 && view[0] === 0xFE && view[1] === 0xFF) {
+			return 'utf-16be';
+		}
+		if (view.length >= 2 && view[0] === 0xFF && view[1] === 0xFE) {
+			return 'utf-16le';
+		}
+
 		if (contentTypeHeader) {
 			const match = contentTypeHeader.match(/charset="?([^"]+)"?/i);
 			if (match && match[1]) return match[1].toLowerCase();
@@ -147,6 +242,9 @@ export class Metafetch {
 
 		const readLength = Math.min(buffer.byteLength, 1024);
 		const bufferAsString = new TextDecoder('latin1').decode(new Uint8Array(buffer, 0, readLength));
+
+		const xmlMatch = bufferAsString.match(/<\?xml[^>]+encoding=["']([^"']+)["']/i);
+		if (xmlMatch && xmlMatch[1]) return xmlMatch[1].toLowerCase();
 
 		const metaMatch = bufferAsString.match(/<meta.+?charset=["']?([^"']+)/i);
 		if (metaMatch && metaMatch[1]) return metaMatch[1].toLowerCase();
@@ -174,7 +272,7 @@ export class Metafetch {
 		if (flags.image) result.image = metaTags['og:image'] || metaTags['twitter:image'];
 	}
 
-	private _extractUrls(doc: Document, response: Response, result: MetafetchResponse, flags: ResolvedFlags) {
+	private _extractUrls(doc: Document, response: { url: string }, result: MetafetchResponse, flags: ResolvedFlags) {
 		if (!flags.url) return;
 
 		const baseEl = doc.querySelector('base');
@@ -227,34 +325,116 @@ export class Metafetch {
 		}
 	}
 
+	/**
+	 * Recursively flattens a JSON-LD object or array into a single-level
+	 * object with colon-delimited keys.
+	 */
+	private _flattenJsonLd(value: any, prefix: string, meta: Record<string, string>): void {
+		if (value === null || value === undefined) {
+			return;
+		}
+
+		if (typeof value === 'object' && !Array.isArray(value)) {
+			for (const key in value) {
+				if (Object.prototype.hasOwnProperty.call(value, key)) {
+					this._flattenJsonLd(value[key], `${prefix}:${key}`, meta);
+				}
+			}
+		}
+		else if (Array.isArray(value)) {
+			value.forEach((item, index) => {
+				this._flattenJsonLd(item, `${prefix}:${index}`, meta);
+			});
+		}
+		else {
+			meta[prefix] = value.toString();
+		}
+	}
+
 	private _extractStructuredData(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
 		if (!flags.meta) return;
 
 		doc.querySelectorAll('script[type="application/ld+json"]').forEach(script => {
 			try {
-				const json = JSON.parse(script.textContent || '{}');
-				if (typeof json === 'object' && json !== null) {
-					const ldMeta = result.meta!;
-					for (const key in json) {
-						if (json.hasOwnProperty(key)) {
-							if (typeof json[key] === 'string') {
-								ldMeta[`ld:${key}`] = json[key];
-							} else if (typeof json[key] === 'object' && json[key] !== null && !Array.isArray(json[key])) {
-								for (const subKey in json[key]) {
-									if (json[key].hasOwnProperty(subKey)) {
-										ldMeta[`ld:${key}:${subKey}`] = json[key][subKey];
-									}
-								}
-							}
+				const json = JSON.parse(script.textContent);
 
-						}
-					}
-					result.meta = ldMeta;
+				if (typeof json === 'object' && json !== null) {
+					this._flattenJsonLd(json, 'ld', result.meta!);
 				}
+
 			} catch (e) {
 				console.warn('Error parsing JSON-LD:', e);
 			}
 		});
+	}
+
+	/**
+	 * Finds the best favicon by prioritizing `apple-touch-icon` and then
+	 * selecting the largest available size. Falls back to /favicon.ico.
+	 */
+	private _extractFavicon(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		if (!flags.favicon) return;
+
+		const baseUrl = result.url || result.originalURL!;
+		let bestIcon: { href: string, size: number } = { href: '', size: 0 };
+
+		doc.querySelectorAll<HTMLLinkElement>("link[rel*='icon']").forEach(el => {
+			const href = el.getAttribute('href');
+			if (!href || href.trim() === '' || href.startsWith('data:')) return;
+
+			const rel = el.getAttribute('rel')!;
+			const sizes = el.getAttribute('sizes');
+			let size = 0;
+			if (sizes) {
+				const match = sizes.match(/(\d+)x\d+/i);
+				if (match) size = parseInt(match[1], 10);
+			}
+
+			let isBetter = false;
+			if (!bestIcon.href) {
+				isBetter = true;
+			} else {
+				const isNewApple = rel.includes('apple-touch-icon');
+				const isBestApple = bestIcon.href.includes('apple-touch-icon');
+
+				if (isNewApple && !isBestApple) {
+					isBetter = true;
+				}
+				else if (isNewApple === isBestApple) {
+					if (size > bestIcon.size) {
+						isBetter = true;
+					}
+				}
+			}
+
+			if (isBetter) {
+				bestIcon = { href, size };
+			}
+		});
+
+		if (bestIcon.href) {
+			result.favicon = new URL(bestIcon.href, baseUrl).href;
+		} else {
+			result.favicon = new URL('/favicon.ico', baseUrl).href;
+		}
+	}
+
+	private _extractFeeds(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		if (!flags.feeds) return;
+
+		const baseUrl = result.url || result.originalURL!;
+		const feeds = new Set<string>();
+
+		doc.querySelectorAll<HTMLLinkElement>("link[type*='rss'], link[type*='atom']").forEach(el => {
+			const href = el.getAttribute('href');
+			if (href && href.trim() !== '') {
+				feeds.add(new URL(href, baseUrl).href);
+			}
+		});
+
+		if (feeds.size > 0) {
+			result.feeds = [...feeds];
+		}
 	}
 }
 

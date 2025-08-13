@@ -5,10 +5,5 @@
   ],
   "spec": [
     "test/*.ts"
-  ],
-  "timeout": "4000ms",
-  "reporter": "mocha-junit-reporter",
-  "reporter-option": [
-    "mochaFile=./test-report.junit.xml"
   ]
 }
