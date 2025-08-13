@@ -2,7 +2,17 @@
 
 name: Build and Test
 
-on: ["push", "pull_request"]
+on:
+  push:
+    paths-ignore:
+      - '.github/**'
+      - 'README.md'
+      - 'LICENSE.md'
+  pull_request:
+    paths-ignore:
+      - '.github/**'
+      - 'README.md'
+      - 'LICENSE.md'
 
 jobs:
   test-node:
@@ -47,7 +57,7 @@ jobs:
         with:
             token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload test results to Codecov
-        if: matrix.node-version == '22.x' && ${{ !cancelled() }}
+        if: ${{ matrix.node-version == '22.x' && !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
