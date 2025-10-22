@@ -135,6 +135,41 @@ async function getSpaMeta(url) {
 getSpaMeta('https://my-single-page-app.com');
 ```
 
+### Dynamic User-Agent Example
+
+The default User-Agent is static. To avoid being blocked and to mimic a real, up-to-date browser, you can supply a fresh User-Agent for each request using a helper library like `user-agents`.
+
+First, install the library:
+
+```bash
+npm install user-agents
+```
+
+Then, generate a new User-Agent and pass it in the `fetch` options:
+
+```javascript
+import metafetch from 'metafetch';
+import UserAgent from 'user-agents';
+
+async function getMetaWithFreshAgent(url) {
+  try {
+    // Generate a new, random, and up-to-date User-Agent string.
+    const userAgent = new UserAgent();
+    console.log('Using User-Agent:', userAgent.toString());
+
+    const meta = await metafetch.fetch(url, {
+      userAgent: userAgent.toString()
+    });
+
+    console.log(meta.title);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+getMetaWithFreshAgent('https://example.com');
+```
+
 ## API
 
 ### `metafetch.fetch(url, [options])`
