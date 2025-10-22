@@ -15,10 +15,20 @@
   "author": "brahma-dev",
   "keywords": [
     "meta",
-    "graph",
-    "tags",
-    "description",
-    "images"
+    "html-head",
+    "twitter-cards",
+    "structured-data",
+    "head-tags",
+    "canonical-urls",
+    "page-title",
+    "meta-description",
+    "meta-tags",
+    "semantic-web",
+    "social-media-metadata",
+    "web scraping",
+    "open-graph",
+    "json-ld",
+    "scraping"
   ],
   "main": "dist/index",
   "dependencies": {
