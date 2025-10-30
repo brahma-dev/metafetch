@@ -8,6 +8,10 @@ jobs:
   publish-npm:
     name: Publish to npm Registry
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +31,7 @@ jobs:
 
       - name: Publish package to npm
         if: github.repository_owner == 'brahma-dev'
-        run: npm publish --access public
+        run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -48,6 +52,6 @@ jobs:
           '
 
       - name: Publish to GitHub Packages
-        run: npm publish
+        run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
