@@ -33,8 +33,6 @@ jobs:
       - name: Publish package to npm
         if: github.repository_owner == 'brahma-dev'
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Set up Node.js for GitHub Packages
         uses: actions/setup-node@v4
