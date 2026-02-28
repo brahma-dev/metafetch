@@ -3,6 +3,7 @@
 name: Build and Test
 
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
       - '.github/**'
@@ -20,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [18.x, 20.x, 22.x, 24.x, 25.x]
 
     steps:
       - name: Checkout repository
