@@ -26,10 +26,10 @@ jobs:
 
       steps:
          - name: Checkout repository
-           uses: actions/checkout@v4
+           uses: actions/checkout@v6
 
          - name: Set up Node.js ${{ matrix.node-version }}
-           uses: actions/setup-node@v4
+           uses: actions/setup-node@v6
            with:
               node-version: ${{ matrix.node-version }}
               cache: "npm" # Add caching for npm dependencies
@@ -89,10 +89,10 @@ jobs:
 
       steps:
          - name: Checkout repository
-           uses: actions/checkout@v4
+           uses: actions/checkout@v6
 
          - name: Set up Bun
-           uses: oven-sh/setup-bun@v1
+           uses: oven-sh/setup-bun@v2
            with:
               bun-version: latest # Or a specific version
               # Caching is enabled by default with setup-bun
