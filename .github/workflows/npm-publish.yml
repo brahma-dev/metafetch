@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           registry-url: 'https://registry.npmjs.org/'
           cache: 'npm'
 
@@ -37,7 +37,7 @@ jobs:
       - name: Set up Node.js for GitHub Packages
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           registry-url: 'https://npm.pkg.github.com/'
           scope: '@brahma-dev'
 

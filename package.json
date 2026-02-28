@@ -29,13 +29,13 @@
     "open-graph",
     "json-ld",
     "scraping"
-  ],
-  "main": "dist/index",
-  "dependencies": {
-    "linkedom": "^0.18.12"
-  },
-  "peerDependencies": {
-    "puppeteer": ">=22.0.0 <25.0.0"
+	],
+	"main": "dist/index",
+	"dependencies": {
+		"linkedom": ">=0.13.7"
+	},
+	"peerDependencies": {
+		"puppeteer": ">=22.0.0 <25.0.0"
   },
   "peerDependenciesMeta": {
     "puppeteer": {
@@ -60,12 +60,13 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
-  "scripts": {
-    "build": "tsc && terser dist/index.js -o dist/index.js -c -m",
-    "dev": "tsc -w",
-    "test": "mocha",
-    "test:ci": "mocha --reporter mocha-junit-reporter --reporter-options \"mochaFile=./test-report.junit.xml\"",
-    "coverage": "c8 --reporter=text --reporter=lcov npm test",
+	"scripts": {
+		"build": "tsc && terser dist/index.js -o dist/index.js -c -m",
+		"dev": "tsc -w",
+		"test:linkedom": "for v in 0.13 0.14 0.15 0.16 0.18; do npm i linkedom@$v && npm test || break; done",
+		"test": "mocha",
+		"test:ci": "mocha --reporter mocha-junit-reporter --reporter-options \"mochaFile=./test-report.junit.xml\"",
+		"coverage": "c8 --reporter=text --reporter=lcov npm test",
     "coverage:ci": "c8 --reporter=text --reporter=lcov npm run test:ci"
   },
   "engines": {
