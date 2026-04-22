@@ -21,6 +21,13 @@ export interface MetafetchResponse {
 	language?: string;
 	favicon?: string;
 	feeds?: string[];
+	videos?: string[];
+	audio?: string[];
+	oEmbed?: string;
+	jsonLd?: Record<string, any>[];
+	microdata?: Record<string, any>[];
+	rdfa?: Record<string, any>[];
+	manifest?: Record<string, any>;
 }
 
 type FlagOptions = {
@@ -38,6 +45,13 @@ type FlagOptions = {
 	language?: boolean;
 	favicon?: boolean;
 	feeds?: boolean;
+	videos?: boolean;
+	audio?: boolean;
+	oEmbed?: boolean;
+	jsonLd?: boolean;
+	microdata?: boolean;
+	rdfa?: boolean;
+	manifest?: boolean;
 };
 
 type ResolvedFlags = Required<FlagOptions>;
@@ -50,6 +64,8 @@ export interface FetchOptions {
 	fetch?: RequestInit;
 	flags?: FlagOptions;
 	render?: boolean;
+	headOnly?: boolean;
+	jsonLdTypes?: string[];
 	retries?: number;
 	retryDelay?: number;
 }
@@ -106,12 +122,29 @@ export class Metafetch {
 				const cleanUrl = url.split("#")[0];
 
 				const flags: ResolvedFlags = {
-					title: true, description: true, type: true, url: true,
-					siteName: true, charset: true, image: true, meta: true,
-					images: true, links: true, headers: true, language: true,
-					favicon: true, feeds: true,
-					...(options.flags || {}),
+					title: options.flags?.title ?? true,
+					description: options.flags?.description ?? true,
+					type: options.flags?.type ?? true,
+					url: options.flags?.url ?? true,
+					siteName: options.flags?.siteName ?? true,
+					charset: options.flags?.charset ?? true,
+					image: options.flags?.image ?? true,
+					meta: options.flags?.meta ?? true,
+					images: options.flags?.images ?? true,
+					links: options.flags?.links ?? true,
+					headers: options.flags?.headers ?? true,
+					language: options.flags?.language ?? true,
+					favicon: options.flags?.favicon ?? true,
+					feeds: options.flags?.feeds ?? true,
+					videos: options.flags?.videos ?? true,
+					audio: options.flags?.audio ?? true,
+					oEmbed: options.flags?.oEmbed ?? true,
+					jsonLd: options.flags?.jsonLd ?? true,
+					microdata: options.flags?.microdata ?? true,
+					rdfa: options.flags?.rdfa ?? true,
+					manifest: options.flags?.manifest ?? true,
 				};
+
 
 				let html: string;
 				let finalUrl: string;
@@ -179,7 +212,39 @@ export class Metafetch {
 						throw new Error(`Request failed with status: ${response.status} ${response.statusText}`);
 					}
 
-					const buffer = await response.arrayBuffer();
+					let buffer: ArrayBuffer;
+					if (options.headOnly && response.body) {
+						const reader = response.body.getReader();
+						const chunks: Uint8Array[] = [];
+						let totalLength = 0;
+						let accumulatedText = '';
+						const decoder = new TextDecoder();
+
+						while (true) {
+							const { done, value } = await reader.read();
+							if (done) break;
+
+							chunks.push(value);
+							totalLength += value.length;
+							accumulatedText += decoder.decode(value, { stream: true });
+
+							if (accumulatedText.toLowerCase().includes('</head>')) {
+								await reader.cancel();
+								break;
+							}
+						}
+
+						const fullBuffer = new Uint8Array(totalLength);
+						let offset = 0;
+						for (const chunk of chunks) {
+							fullBuffer.set(chunk, offset);
+							offset += chunk.length;
+						}
+						buffer = fullBuffer.buffer;
+					} else {
+						buffer = await response.arrayBuffer();
+					}
+
 					if (buffer.byteLength === 0) {
 						throw new Error("Received an empty response body.");
 					}
@@ -198,11 +263,20 @@ export class Metafetch {
 				}
 
 				this._extractMeta(document, result, flags);
-				this._extractStructuredData(document, result, flags);
+				this._extractStructuredData(document, result, flags, options);
 				this._extractUrls(document, { url: finalUrl }, result, flags);
 				this._extractAssets(document, result, flags);
+				this._extractMultimedia(document, result, flags);
+				this._extractOEmbed(document, result, flags);
 				this._extractFavicon(document, result, flags);
 				this._extractFeeds(document, result, flags);
+				this._extractMicrodata(document, result, flags);
+				this._extractRdfa(document, result, flags);
+
+				await this._extractManifest(document, result, flags, {
+					userAgent: options.userAgent || this.#userAgent,
+					headers: options.fetch?.headers as Record<string, string>
+				});
 
 				if (flags.headers) {
 					result.headers = responseHeaders;
@@ -281,7 +355,7 @@ export class Metafetch {
 			if (property && content) metaTags[property.toLowerCase()] = content;
 		});
 
-		if (flags.meta) result.meta = metaTags;
+		if (flags.meta && Object.keys(metaTags).length > 0) result.meta = metaTags;
 		if (flags.description) result.description = metaTags['og:description'] || metaTags['description'];
 		if (flags.type) result.type = metaTags['og:type'];
 		if (flags.siteName) result.siteName = metaTags['og:site_name'];
@@ -308,37 +382,37 @@ export class Metafetch {
 	}
 
 	private _extractAssets(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		if (!flags.images && !flags.links) return;
+
 		const baseEl = doc.querySelector('base');
 		const baseHref = baseEl ? baseEl.getAttribute('href') : null;
 		const baseUrl = baseHref || result.url || result.originalURL!;
 
-		if (flags.images) {
-			const imageSources = new Set<string>();
-			doc.querySelectorAll('img').forEach(el => {
+		const imageSources = new Set<string>();
+		const linkHrefs = new Set<string>();
+
+		doc.querySelectorAll('img, a').forEach(el => {
+			if (el.tagName.toLowerCase() === 'img' && flags.images) {
 				const src = el.getAttribute('src');
 				if (src) {
 					const trimmedSrc = src.trim();
 					if (trimmedSrc !== '' && !trimmedSrc.startsWith('javascript:')) {
-						try { imageSources.add(new URL(trimmedSrc, baseUrl).href) } catch { };
+						try { imageSources.add(new URL(trimmedSrc, baseUrl).href); } catch { }
 					}
 				}
-			});
-			result.images = [...imageSources];
-		}
-
-		if (flags.links) {
-			const linkHrefs = new Set<string>();
-			doc.querySelectorAll('a').forEach(el => {
+			} else if (el.tagName.toLowerCase() === 'a' && flags.links) {
 				const href = el.getAttribute('href');
 				if (href) {
 					const trimmedHref = href.trim();
 					if (trimmedHref !== '' && !trimmedHref.startsWith('#') && !trimmedHref.startsWith('javascript:')) {
-						try { linkHrefs.add(new URL(trimmedHref, baseUrl).href) } catch { };
+						try { linkHrefs.add(new URL(trimmedHref, baseUrl).href); } catch { }
 					}
 				}
-			});
-			result.links = [...linkHrefs];
-		}
+			}
+		});
+
+		if (flags.images) result.images = [...imageSources];
+		if (flags.links) result.links = [...linkHrefs];
 	}
 
 	/**
@@ -367,15 +441,53 @@ export class Metafetch {
 		}
 	}
 
-	private _extractStructuredData(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
-		if (!flags.meta) return;
+	private _extractStructuredData(doc: Document, result: MetafetchResponse, flags: ResolvedFlags, options: FetchOptions = {}) {
+		if (!flags.meta && !flags.jsonLd) return;
 
 		doc.querySelectorAll('script[type="application/ld+json"]').forEach(script => {
-			try {
-				const json = JSON.parse(script.textContent);
+			const content = script.textContent;
+			if (!content) return;
 
-				if (typeof json === 'object' && json !== null) {
-					this._flattenJsonLd(json, 'ld', result.meta!);
+			// Optimization: Pre-screen for requested types if provided
+			if (options.jsonLdTypes && options.jsonLdTypes.length > 0) {
+				const hasType = options.jsonLdTypes.some(type => content.includes(`"${type}"`) || content.includes(`'${type}'`));
+				if (!hasType) return;
+			}
+
+			try {
+				let json = JSON.parse(content);
+				if (typeof json !== 'object' || json === null) return;
+
+				// Filter if requested
+				if (options.jsonLdTypes && options.jsonLdTypes.length > 0) {
+					if (Array.isArray(json)) {
+						json = json.filter(item => {
+							const type = item['@type'];
+							if (Array.isArray(type)) return type.some(t => options.jsonLdTypes!.includes(t));
+							return options.jsonLdTypes!.includes(type);
+						});
+						if (json.length === 0) return;
+					} else {
+						const type = json['@type'];
+						const matches = Array.isArray(type)
+							? type.some(t => options.jsonLdTypes!.includes(t))
+							: options.jsonLdTypes!.includes(type);
+						if (!matches) return;
+					}
+				}
+
+				if (flags.jsonLd) {
+					if (!result.jsonLd) result.jsonLd = [];
+					if (Array.isArray(json)) {
+						result.jsonLd.push(...json);
+					} else {
+						result.jsonLd.push(json);
+					}
+				}
+
+				if (flags.meta) {
+					if (!result.meta) result.meta = {};
+					this._flattenJsonLd(json, 'ld', result.meta);
 				}
 
 			} catch (e) {
@@ -450,6 +562,259 @@ export class Metafetch {
 
 		if (feeds.size > 0) {
 			result.feeds = [...feeds];
+		}
+	}
+
+	private _extractMultimedia(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		const baseUrl = result.url || result.originalURL!;
+
+		if (flags.videos) {
+			const videos = new Set<string>();
+
+			// From og:video
+			if (result.meta && result.meta['og:video']) {
+				videos.add(result.meta['og:video']);
+			}
+
+			// From <video> tags
+			doc.querySelectorAll('video').forEach(el => {
+				const src = el.getAttribute('src');
+				if (src) {
+					try { videos.add(new URL(src, baseUrl).href); } catch { }
+				}
+				el.querySelectorAll('source').forEach(source => {
+					const sSrc = source.getAttribute('src');
+					if (sSrc) {
+						try { videos.add(new URL(sSrc, baseUrl).href); } catch { }
+					}
+				});
+			});
+
+			if (videos.size > 0) result.videos = [...videos];
+		}
+
+		if (flags.audio) {
+			const audio = new Set<string>();
+
+			// From og:audio
+			if (result.meta && result.meta['og:audio']) {
+				audio.add(result.meta['og:audio']);
+			}
+
+			// From <audio> tags
+			doc.querySelectorAll('audio').forEach(el => {
+				const src = el.getAttribute('src');
+				if (src) {
+					try { audio.add(new URL(src, baseUrl).href); } catch { }
+				}
+				el.querySelectorAll('source').forEach(source => {
+					const sSrc = source.getAttribute('src');
+					if (sSrc) {
+						try { audio.add(new URL(sSrc, baseUrl).href); } catch { }
+					}
+				});
+			});
+
+			if (audio.size > 0) result.audio = [...audio];
+		}
+	}
+
+	private _extractOEmbed(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		if (!flags.oEmbed) return;
+
+		const baseUrl = result.url || result.originalURL!;
+		const oEmbedLink = doc.querySelector<HTMLLinkElement>('link[type="application/json+oembed"]');
+
+		if (oEmbedLink) {
+			const href = oEmbedLink.getAttribute('href');
+			if (href) {
+				try { result.oEmbed = new URL(href, baseUrl).href; } catch { }
+			}
+		}
+	}
+
+	private _extractMicrodata(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		if (!flags.microdata) return;
+
+		const items: Record<string, any>[] = [];
+		const baseUrl = result.url || result.originalURL!;
+
+		const getItemValue = (el: Element): any => {
+			if (el.hasAttribute('itemscope')) {
+				return parseItem(el);
+			}
+
+			const tagName = el.tagName.toLowerCase();
+			if (tagName === 'meta') return el.getAttribute('content') || '';
+			if (['audio', 'embed', 'iframe', 'img', 'source', 'track', 'video'].includes(tagName)) {
+				const src = el.getAttribute('src');
+				return src ? new URL(src, baseUrl).href : '';
+			}
+			if (['a', 'area', 'link'].includes(tagName)) {
+				const href = el.getAttribute('href');
+				return href ? new URL(href, baseUrl).href : '';
+			}
+			if (tagName === 'object') {
+				const data = el.getAttribute('data');
+				return data ? new URL(data, baseUrl).href : '';
+			}
+			if (tagName === 'data') return el.getAttribute('value') || '';
+			if (tagName === 'meter') return el.getAttribute('value') || '';
+			if (tagName === 'time') return el.getAttribute('datetime') || el.textContent?.trim() || '';
+
+			return el.textContent?.trim() || '';
+		};
+
+		const parseItem = (root: Element): Record<string, any> => {
+			const item: Record<string, any> = {};
+			const type = root.getAttribute('itemtype');
+			if (type) item['@type'] = type;
+			const id = root.getAttribute('itemid');
+			if (id) item['@id'] = id;
+
+			const props = root.querySelectorAll('[itemprop]');
+			props.forEach(prop => {
+				// Ensure the property belongs to this itemscope and not a nested one
+				let parent = prop.parentElement;
+				let isDirect = true;
+				while (parent && parent !== root) {
+					if (parent.hasAttribute('itemscope')) {
+						isDirect = false;
+						break;
+					}
+					parent = parent.parentElement;
+				}
+
+				if (isDirect) {
+					const name = prop.getAttribute('itemprop')!;
+					const value = getItemValue(prop);
+
+					if (item[name]) {
+						if (!Array.isArray(item[name])) item[name] = [item[name]];
+						item[name].push(value);
+					} else {
+						item[name] = value;
+					}
+				}
+			});
+
+			return item;
+		};
+
+		// Find top-level itemscopes (those that are not themselves an itemprop)
+		doc.querySelectorAll('[itemscope]').forEach(el => {
+			if (!el.hasAttribute('itemprop')) {
+				items.push(parseItem(el));
+			}
+		});
+
+		if (items.length > 0) result.microdata = items;
+	}
+
+	private _extractRdfa(doc: Document, result: MetafetchResponse, flags: ResolvedFlags) {
+		if (!flags.rdfa) return;
+
+		const items: Record<string, any>[] = [];
+		const baseUrl = result.url || result.originalURL!;
+
+		const getRdfaValue = (el: Element): any => {
+			const typeofAttr = el.getAttribute('typeof');
+			if (typeofAttr) {
+				return parseEntity(el);
+			}
+
+			const content = el.getAttribute('content');
+			if (content !== null) return content;
+
+			const tagName = el.tagName.toLowerCase();
+			if (['img', 'audio', 'video', 'source', 'track'].includes(tagName)) {
+				const src = el.getAttribute('src');
+				return src ? new URL(src, baseUrl).href : '';
+			}
+			if (['a', 'area', 'link'].includes(tagName)) {
+				const href = el.getAttribute('href');
+				return href ? new URL(href, baseUrl).href : '';
+			}
+			if (tagName === 'object') {
+				const data = el.getAttribute('data');
+				return data ? new URL(data, baseUrl).href : '';
+			}
+			if (tagName === 'time') return el.getAttribute('datetime') || el.textContent?.trim() || '';
+
+			return el.textContent?.trim() || '';
+		};
+
+		const parseEntity = (root: Element): Record<string, any> => {
+			const entity: Record<string, any> = {};
+			const type = root.getAttribute('typeof');
+			if (type) entity['@type'] = type;
+			const about = root.getAttribute('about') || root.getAttribute('resource');
+			if (about) entity['@id'] = about;
+			const vocab = root.getAttribute('vocab');
+			if (vocab) entity['@context'] = vocab;
+
+			root.querySelectorAll('[property]').forEach(prop => {
+				let parent = prop.parentElement;
+				let isDirect = true;
+				while (parent && parent !== root) {
+					if (parent.hasAttribute('typeof') && !parent.hasAttribute('property')) {
+						isDirect = false;
+						break;
+					}
+					parent = parent.parentElement;
+				}
+
+				if (isDirect) {
+					const name = prop.getAttribute('property')!;
+					const value = getRdfaValue(prop);
+
+					if (entity[name]) {
+						if (!Array.isArray(entity[name])) entity[name] = [entity[name]];
+						entity[name].push(value);
+					} else {
+						entity[name] = value;
+					}
+				}
+			});
+
+			return entity;
+		};
+
+		doc.querySelectorAll('[typeof]').forEach(el => {
+			if (!el.hasAttribute('property')) {
+				items.push(parseEntity(el));
+			}
+		});
+
+		if (items.length > 0) result.rdfa = items;
+	}
+
+	private async _extractManifest(doc: Document, result: MetafetchResponse, flags: ResolvedFlags, options: { userAgent: string, headers?: Record<string, string> }) {
+		if (!flags.manifest) return;
+
+		const manifestLink = doc.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+		if (!manifestLink) return;
+
+		const href = manifestLink.getAttribute('href');
+		if (!href) return;
+
+		const baseUrl = result.url || result.originalURL!;
+		const manifestUrl = new URL(href, baseUrl).href;
+
+		try {
+			const response = await fetch(manifestUrl, {
+				headers: {
+					'User-Agent': options.userAgent,
+					...options.headers
+				}
+			});
+
+			if (response.ok) {
+				const json = await response.json();
+				result.manifest = json;
+			}
+		} catch (e) {
+			// Silent fail for manifest fetching
 		}
 	}
 }

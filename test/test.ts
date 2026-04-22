@@ -122,6 +122,184 @@ describe('Metafetch: Optimized Tests', () => {
 				case '/pdf':
 					res.setHeader('Content-Type', 'application/pdf').end('%PDF-1.4');
 					return;
+				case '/multimedia':
+					body = `<html>
+						<head>
+							<meta property="og:video" content="https://example.com/video.mp4">
+							<meta property="og:audio" content="https://example.com/audio.mp3">
+						</head>
+						<body>
+							<video src="/video2.mp4"></video>
+							<video>
+								<source src="/video3.webm" type="video/webm">
+							</video>
+							<audio src="/audio2.mp3"></audio>
+							<audio>
+								<source src="/audio3.wav" type="audio/wav">
+							</audio>
+						</body>
+					</html>`;
+					break;
+				case '/social-extensions':
+					body = `<html>
+						<head>
+							<meta property="al:ios:url" content="app://ios">
+							<meta name="dc.title" content="Dublin Core Title">
+							<link rel="alternate" type="application/json+oembed" href="/oembed.json">
+						</head>
+					</html>`;
+					break;
+				case '/microdata':
+					body = `<html>
+						<body>
+							<div itemscope itemtype="https://schema.org/Recipe">
+								<h1 itemprop="name">Mom's Pie</h1>
+								<div itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
+									<span itemprop="ratingValue">4.8</span>
+								</div>
+								<ul>
+									<li itemprop="recipeIngredient">Apples</li>
+									<li itemprop="recipeIngredient">Sugar</li>
+								</ul>
+								<img itemprop="image" src="/pie.jpg">
+								<a itemprop="url" href="/pie-recipe">Link</a>
+								<meta itemprop="prepTime" content="PT30M">
+								<time itemprop="datePublished" datetime="2024-01-01">Jan 1st</time>
+							</div>
+						</body>
+					</html>`;
+					break;
+				case '/rdfa':
+					body = `<html>
+						<body vocab="https://schema.org/" typeof="Movie">
+							<h1 property="name">Inception</h1>
+							<div property="aggregateRating" typeof="AggregateRating">
+								<span property="ratingValue">9.0</span>
+							</div>
+							<span property="actor">Leonardo DiCaprio</span>
+							<span property="actor">Ellen Page</span>
+							<link property="url" href="/inception">
+							<meta property="duration" content="PT2H28M">
+						</body>
+					</html>`;
+					break;
+				case '/manifest-page':
+					body = `<html><head><link rel="manifest" href="/manifest.json"></head></html>`;
+					break;
+				case '/manifest.json':
+					res.setHeader('Content-Type', 'application/manifest+json');
+					res.end(JSON.stringify({ name: "My App", short_name: "App" }));
+					return;
+				case '/manifest-error-page':
+					body = `<html><head><link rel="manifest" href="/404.json"></head></html>`;
+					break;
+				case '/microdata-deep':
+					body = `<html>
+						<body>
+							<div itemscope itemtype="https://schema.org/Thing" itemid="id123">
+								<span itemprop="name">Deep Thing</span>
+								<object itemprop="attachment" data="/file.pdf"></object>
+								<data itemprop="sku" value="12345"></data>
+								<meter itemprop="rating" value="5"></meter>
+								<div itemprop="nested" itemscope itemtype="https://schema.org/Thing">
+									<span itemprop="subname">Nested</span>
+								</div>
+								<!-- should be ignored by top-level item -->
+								<div itemscope itemtype="https://schema.org/Ignore">
+									<span itemprop="ignoreprop">Ignored</span>
+								</div>
+							</div>
+							<div itemscope>
+								<span itemprop="empty"></span>
+								<img itemprop="img_no_src">
+								<a itemprop="link_no_href"></a>
+								<object itemprop="obj_no_data"></object>
+								<time itemprop="time_no_datetime">Just Text</time>
+								<meta itemprop="meta_no_content">
+								<data itemprop="data_no_value"></data>
+								<meter itemprop="meter_no_value"></meter>
+								<time itemprop="time_empty"></time>
+							</div>
+						</body>
+					</html>`;
+					break;
+				case '/rdfa-deep':
+					body = `<html>
+						<body vocab="https://schema.org/" typeof="Thing" about="id456">
+							<span property="name">Deep RDFa</span>
+							<img property="image" src="/image.jpg">
+							<audio property="sound" src="/sound.mp3"></audio>
+							<video property="clip" src="/video.mp4"></video>
+							<object property="doc" data="/doc.pdf"></object>
+							<time property="date" datetime="2024-01-01">Jan</time>
+							<div property="nested" typeof="Thing">
+								<span property="subname">Nested</span>
+							</div>
+							<!-- should be ignored by top-level entity -->
+							<div typeof="Ignore">
+								<span property="ignoreprop">Ignored</span>
+							</div>
+							<span property="multi">Value 1</span>
+							<span property="multi">Value 2</span>
+							<!-- branches -->
+							<img property="img_no_src">
+							<a property="link_no_href"></a>
+							<object property="obj_no_data"></object>
+							<time property="time_no_datetime">Just Text</time>
+							<time property="time_empty"></time>
+							<span property="empty_text"></span>
+						</body>
+					</html>`;
+					break;
+				case '/manifest-no-href':
+					body = `<html><head><link rel="manifest"></head></html>`;
+					break;
+				case '/large-body':
+					res.setHeader('Content-Type', 'text/html');
+					res.write('<html><head><title>Large Page</title></head><body>');
+					for (let i = 0; i < 1000; i++) {
+						res.write(`<p>This is line ${i} of a very large body that we want to avoid downloading.</p>`);
+					}
+					res.write('</body></html>');
+					res.end();
+					return;
+				case '/selective-jsonld':
+					body = `<html>
+						<head>
+							<script type="application/ld+json">{"@type": "Article", "headline": "A"}</script>
+							<script type="application/ld+json">{"@type": "Product", "name": "P"}</script>
+							<script type="application/ld+json">[{"@type": "Breadcrumb", "name": "B"}, {"@type": "Product", "name": "P2"}]</script>
+							<script type="application/ld+json">{"@type": ["Article", "Product"], "name": "Multi"}</script>
+							<script type="application/ld+json">[{"@type": ["Product"], "name": "ArrayMulti"}]</script>
+							<!-- Branch coverage: Pre-screen pass, but filter fail -->
+							<script type="application/ld+json">{"something": "Product", "@type": "Article", "name": "PreScreenPassFilterFail"}</script>
+							<script type="application/ld+json">[{"something": "Product", "@type": "Article"}]</script>
+							<!-- Branch coverage: Empty content -->
+							<script type="application/ld+json"></script>
+						</head>
+					</html>`;
+					break;
+				case '/jsonld-no-meta':
+					body = `<html><head><script type="application/ld+json">{"@type": "Thing", "name": "T"}</script></head></html>`;
+					break;
+				case '/head-no-close':
+					body = `<html><head><title>No closing head</title><body><h1>Hi</h1></body></html>`;
+					break;
+				case '/coverage-edge-cases':
+					body = `<html>
+						<head>
+							<link rel="alternate" type="application/json+oembed" href="http://:80"> <!-- malformed -->
+						</head>
+						<body>
+							<img src="http://:80"> <!-- malformed -->
+							<a href="http://:80"></a> <!-- malformed -->
+							<video src="http://:80"></video> <!-- malformed -->
+							<video><source src="http://:80"></video> <!-- malformed -->
+							<audio src="http://:80"></audio> <!-- malformed -->
+							<audio><source src="http://:80"></audio> <!-- malformed -->
+						</body>
+					</html>`;
+					break;
 			}
 			res.end(body);
 		}).listen(PORT, '127.0.0.1');
@@ -398,8 +576,18 @@ describe('Metafetch: Optimized Tests', () => {
 
 		it('should ignore JSON-LD content that is not a JSON object or array', async () => {
 			const res = await instance.fetch(`${BASE_URL}/json-ld/non-object`);
-			const ldKeys = Object.keys(res.meta!).filter(k => k.startsWith('ld:'));
+			const ldKeys = res.meta ? Object.keys(res.meta).filter(k => k.startsWith('ld:')) : [];
 			expect(ldKeys).to.be.empty;
+		});
+
+		it('should extract structured JSON-LD data', async () => {
+			const res = await instance.fetch(`${BASE_URL}/json-ld/complex`);
+			expect(res.jsonLd).to.be.an('array').with.lengthOf(1);
+			expect(res.jsonLd![0]).to.deep.include({
+				"@type": "Recipe",
+				"name": "Grandma's Cookies",
+				"author": { "@type": "Person", "name": "John Smith" }
+			});
 		});
 	});
 
@@ -585,6 +773,234 @@ describe('Metafetch: Optimized Tests', () => {
 			expect(res.feeds).to.be.an('array').with.lengthOf(2);
 			expect(res.feeds).to.include(`${BASE_URL}/rss.xml`);
 			expect(res.feeds).to.include('https://example.com/atom.xml');
+		});
+	});
+
+	describe('Multimedia Extraction', () => {
+		const instance = new Metafetch();
+
+		it('should extract videos from og:video and video tags', async () => {
+			const res = await instance.fetch(`${BASE_URL}/multimedia`);
+			expect(res.videos).to.be.an('array');
+			expect(res.videos).to.include('https://example.com/video.mp4');
+			expect(res.videos).to.include(`${BASE_URL}/video2.mp4`);
+			expect(res.videos).to.include(`${BASE_URL}/video3.webm`);
+		});
+
+		it('should extract audio from og:audio and audio tags', async () => {
+			const res = await instance.fetch(`${BASE_URL}/multimedia`);
+			expect(res.audio).to.be.an('array');
+			expect(res.audio).to.include('https://example.com/audio.mp3');
+			expect(res.audio).to.include(`${BASE_URL}/audio2.mp3`);
+			expect(res.audio).to.include(`${BASE_URL}/audio3.wav`);
+		});
+	});
+
+	describe('Social & Standard Extensions', () => {
+		const instance = new Metafetch();
+
+		it('should extract App Links, Dublin Core and oEmbed', async () => {
+			const res = await instance.fetch(`${BASE_URL}/social-extensions`);
+			expect(res.meta!['al:ios:url']).to.equal('app://ios');
+			expect(res.meta!['dc.title']).to.equal('Dublin Core Title');
+			expect(res.oEmbed).to.equal(`${BASE_URL}/oembed.json`);
+		});
+
+		it('should handle missing oEmbed href and malformed multimedia URLs', async () => {
+			const res = await instance.fetch(`${BASE_URL}/coverage-edge-cases`);
+			expect(res.oEmbed).to.be.undefined;
+			expect(res.videos).to.be.undefined;
+			expect(res.audio).to.be.undefined;
+		});
+
+		it('should early return in _extractAssets when both images and links are disabled', async () => {
+			const res = await instance.fetch(`${BASE_URL}/primary-meta`, {
+				flags: { images: false, links: false }
+			});
+			expect(res.images).to.be.undefined;
+			expect(res.links).to.be.undefined;
+		});
+
+		it('should early return in _extractOEmbed when oEmbed flag is disabled', async () => {
+			const res = await instance.fetch(`${BASE_URL}/social-extensions`, {
+				flags: { oEmbed: false }
+			});
+			expect(res.oEmbed).to.be.undefined;
+		});
+
+		it('should early return in _extractStructuredData when both meta and jsonLd are disabled', async () => {
+			const res = await instance.fetch(`${BASE_URL}/json-ld/complex`, {
+				flags: { meta: false, jsonLd: false }
+			});
+			expect(res.meta).to.be.undefined;
+			expect(res.jsonLd).to.be.undefined;
+		});
+	});
+
+	describe('Structured Data (Microdata, RDFa, Manifest)', () => {
+		const instance = new Metafetch();
+
+		it('should extract nested Microdata', async () => {
+			const res = await instance.fetch(`${BASE_URL}/microdata`);
+			expect(res.microdata).to.be.an('array').with.lengthOf(1);
+			const recipe = res.microdata![0];
+			expect(recipe['@type']).to.equal('https://schema.org/Recipe');
+			expect(recipe.name).to.equal("Mom's Pie");
+			expect(recipe.image).to.equal(`${BASE_URL}/pie.jpg`);
+			expect(recipe.url).to.equal(`${BASE_URL}/pie-recipe`);
+			expect(recipe.prepTime).to.equal('PT30M');
+			expect(recipe.datePublished).to.equal('2024-01-01');
+
+			expect(recipe.aggregateRating).to.be.an('object');
+			expect(recipe.aggregateRating.ratingValue).to.equal('4.8');
+			expect(recipe.recipeIngredient).to.be.an('array').with.members(['Apples', 'Sugar']);
+		});
+
+		it('should extract nested RDFa', async () => {
+			const res = await instance.fetch(`${BASE_URL}/rdfa`);
+			expect(res.rdfa).to.be.an('array').with.lengthOf(1);
+			const movie = res.rdfa![0];
+			expect(movie['@type']).to.equal('Movie');
+			expect(movie['@context']).to.equal('https://schema.org/');
+			expect(movie.name).to.equal('Inception');
+			expect(movie.url).to.equal(`${BASE_URL}/inception`);
+			expect(movie.duration).to.equal('PT2H28M');
+
+			expect(movie.aggregateRating).to.be.an('object');
+			expect(movie.aggregateRating.ratingValue).to.equal('9.0');
+			expect(movie.actor).to.be.an('array').with.members(['Leonardo DiCaprio', 'Ellen Page']);
+		});
+
+		it('should fetch and parse Web App Manifest', async () => {
+			const res = await instance.fetch(`${BASE_URL}/manifest-page`);
+			expect(res.manifest).to.be.an('object');
+			expect(res.manifest!.name).to.equal('My App');
+			expect(res.manifest!.short_name).to.equal('App');
+		});
+
+		it('should handle manifest fetch errors gracefully', async () => {
+			const res = await instance.fetch(`${BASE_URL}/manifest-error-page`);
+			expect(res.manifest).to.be.undefined;
+		});
+
+		it('should handle missing manifest href', async () => {
+			const res = await instance.fetch(`${BASE_URL}/manifest-no-href`);
+			expect(res.manifest).to.be.undefined;
+		});
+
+		it('should use originalURL in _extractManifest when url flag is disabled', async () => {
+			const res = await instance.fetch(`${BASE_URL}/manifest-page`, {
+				flags: { url: false }
+			});
+			expect(res.manifest).to.be.an('object');
+			expect(res.manifest!.name).to.equal('My App');
+		});
+
+		it('should respect flags for microdata, rdfa, and manifest', async () => {
+			const res = await instance.fetch(`${BASE_URL}/microdata`, {
+				flags: { microdata: false, rdfa: false, manifest: false }
+			});
+			expect(res.microdata).to.be.undefined;
+			expect(res.rdfa).to.be.undefined;
+			expect(res.manifest).to.be.undefined;
+		});
+
+		it('should have 100% coverage for Microdata edge cases', async () => {
+			const res = await instance.fetch(`${BASE_URL}/microdata-deep`);
+			expect(res.microdata).to.be.an('array').with.lengthOf(3); // 1. Deep Thing, 2. Ignored, 3. Anonymous
+			const thing = res.microdata![0];
+			expect(thing['@type']).to.equal('https://schema.org/Thing');
+			expect(thing['@id']).to.equal('id123');
+			expect(thing.attachment).to.equal(`${BASE_URL}/file.pdf`);
+			expect(thing.sku).to.equal('12345');
+			expect(thing.rating).to.equal('5');
+			expect(thing.nested['@type']).to.equal('https://schema.org/Thing');
+			expect(thing.nested.subname).to.equal('Nested');
+			expect(thing.ignoreprop).to.be.undefined; // Nested in another itemscope
+
+			const anon = res.microdata![2];
+			expect(anon.img_no_src).to.equal('');
+			expect(anon.link_no_href).to.equal('');
+			expect(anon.obj_no_data).to.equal('');
+			expect(anon.time_no_datetime).to.equal('Just Text');
+		});
+
+		it('should have 100% coverage for RDFa edge cases', async () => {
+			const res = await instance.fetch(`${BASE_URL}/rdfa-deep`);
+			expect(res.rdfa).to.be.an('array').with.lengthOf(2); // 1. Deep RDFa, 2. Ignored
+			const thing = res.rdfa![0];
+			expect(thing['@type']).to.equal('Thing');
+			expect(thing['@id']).to.equal('id456');
+			expect(thing['@context']).to.equal('https://schema.org/');
+			expect(thing.image).to.equal(`${BASE_URL}/image.jpg`);
+			expect(thing.sound).to.equal(`${BASE_URL}/sound.mp3`);
+			expect(thing.clip).to.equal(`${BASE_URL}/video.mp4`);
+			expect(thing.doc).to.equal(`${BASE_URL}/doc.pdf`);
+			expect(thing.date).to.equal('2024-01-01');
+			expect(thing.nested['@type']).to.equal('Thing');
+			expect(thing.nested.subname).to.equal('Nested');
+			expect(thing.ignoreprop).to.be.undefined;
+			expect(thing.multi).to.be.an('array').with.members(['Value 1', 'Value 2']);
+		});
+	});
+
+	describe('Performance Enhancements', () => {
+		const instance = new Metafetch();
+
+		it('should exit early when headOnly is enabled', async () => {
+			const res = await instance.fetch(`${BASE_URL}/large-body`, { headOnly: true });
+			expect(res.title).to.equal('Large Page');
+			// The body should be mostly missing. 
+			// We can check if any body content exists in links/images (should be empty)
+			expect(res.links).to.be.empty; 
+		});
+
+		it('should parse only requested JSON-LD types', async () => {
+			const res = await instance.fetch(`${BASE_URL}/selective-jsonld`, {
+				jsonLdTypes: ['Product']
+			});
+			expect(res.jsonLd).to.be.an('array').with.lengthOf(4);
+			expect(res.jsonLd![0]['@type']).to.equal('Product');
+			expect(res.jsonLd![1]['@type']).to.equal('Product');
+			expect(res.meta!['ld:headline']).to.be.undefined;
+			expect(res.meta!['ld:name']).to.equal('Multi');
+		});
+
+		it('should handle multiple JSON-LD types', async () => {
+			const res = await instance.fetch(`${BASE_URL}/selective-jsonld`, {
+				jsonLdTypes: ['Article', 'Breadcrumb']
+			});
+			expect(res.jsonLd).to.be.an('array').with.lengthOf(5);
+		});
+
+		it('should handle array types in JSON-LD', async () => {
+			const res = await instance.fetch(`${BASE_URL}/selective-jsonld`, {
+				jsonLdTypes: ['Product']
+			});
+			const multi = res.jsonLd!.find(i => i.name === 'Multi');
+			expect(multi).to.exist;
+			const arrayMulti = res.jsonLd!.find(i => i.name === 'ArrayMulti');
+			expect(arrayMulti).to.exist;
+		});
+
+		it('should handle headOnly when no head tag is found', async () => {
+			const res = await instance.fetch(`${BASE_URL}/head-no-close`, { headOnly: true });
+			expect(res.title).to.equal('No closing head');
+		});
+
+		it('should respect flags even when jsonLdTypes provided', async () => {
+			const res = await instance.fetch(`${BASE_URL}/selective-jsonld`, {
+				jsonLdTypes: ['Product'],
+				flags: { jsonLd: false, meta: true }
+			});
+			expect(res.jsonLd).to.be.undefined;
+			expect(res.meta!['ld:name']).to.equal('Multi');
+		});
+
+		it('should handle JSON-LD when no meta tags are present', async () => {
+			const res = await instance.fetch(`${BASE_URL}/jsonld-no-meta`);
+			expect(res.meta).to.exist;
+			expect(res.meta!['ld:name']).to.equal('T');
 		});
 	});
 });

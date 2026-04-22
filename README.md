@@ -30,9 +30,16 @@
 *   **Rich Content Discovery:**
     *   Finds the best-quality **favicon** by prioritizing Apple touch icons and largest sizes.
     *   Discovers **RSS/Atom feeds** linked in the page.
+    *   Extracts **Video and Audio** sources from meta tags and media elements.
+    *   Supports **oEmbed** discovery for embedding content.
+    *   Extracts **Microdata and RDFa** as nested objects.
+    *   Fetches and parses the **Web App Manifest**.
     *   Parses and flattens structured **JSON-LD** data.
 *   **Advanced Encoding Detection:** Accurately detects character encoding via BOM, HTTP headers, and meta tags to prevent garbled text.
 *   **Highly Configurable:** Fine-tune requests with custom headers, user agents, and feature flags to parse only what you need.
+*   **Performance Optimizations:**
+    *   **Early Exit (Head-Only):** Option to stop downloading the page as soon as the `</head>` tag is reached, saving bandwidth and time.
+    *   **Selective JSON-LD:** Pre-screen and parse only the specific JSON-LD types you care about to reduce CPU and memory usage.
 
 ## Installation
 
@@ -80,12 +87,19 @@ This will output a representative object like this:
   image: 'https://example.com/images/featured-image.png',
   favicon: 'https://example.com/favicons/apple-touch-icon.png',
   feeds: [ 'https://example.com/rss.xml' ],
+  videos: [ 'https://example.com/video.mp4' ],
+  audio: [ 'https://example.com/podcast.mp3' ],
+  oEmbed: 'https://example.com/services/oembed?url=...',
   meta: {
      'og:title': 'Awesome Web Page',
      'og:description': 'A compelling description...',
      'ld:headline': 'Awesome Web Page',
      /* ... other meta and JSON-LD tags ... */
   },
+  jsonLd: [ { "@context": "https://schema.org", "@type": "NewsArticle", ... } ],
+  microdata: [ { "@type": "https://schema.org/Recipe", "name": "Mom's Pie", ... } ],
+  rdfa: [ { "@type": "Movie", "name": "Inception", ... } ],
+  manifest: { name: "My App", short_name: "App", ... },
   images: [ 'https://example.com/images/featured-image.png', /* ... */ ],
   links: [ 'https://example.com/another-page', /* ... */ ],
   headers: { 'content-type': 'text/html; charset=utf-8', /* ... */ },
@@ -170,6 +184,41 @@ async function getMetaWithFreshAgent(url) {
 getMetaWithFreshAgent('https://example.com');
 ```
 
+### Performance Optimization Example
+
+If you only need basic metadata (title, description, etc.) or specific structured data, use `headOnly` and `jsonLdTypes` to make your requests significantly faster.
+
+```javascript
+import metafetch from 'metafetch';
+
+async function getFastMeta(url) {
+  try {
+    const meta = await metafetch.fetch(url, {
+      // Abort connection as soon as </head> is found
+      headOnly: true,
+      
+      // Only parse Product structured data
+      jsonLdTypes: ['Product'],
+      
+      // Disable everything else
+      flags: {
+        images: false,
+        links: false,
+        microdata: false,
+        rdfa: false
+      }
+    });
+
+    console.log('Title:', meta.title);
+    console.log('Products:', meta.jsonLd);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+getFastMeta('https://example.com/product/123');
+```
+
 ## API
 
 ### `metafetch.fetch(url, [options])`
@@ -184,6 +233,8 @@ Fetches and parses metadata from the given `url`.
 | `retries` | `number` | `0` | Number of times to retry the request on failure. |
 | `retryDelay` | `number` | `1000` | Base delay in milliseconds for retries (uses exponential backoff). |
 | `userAgent`| `string` | Firefox | The User-Agent string to use for the request. |
+| `headOnly` | `boolean` | `false` | If `true`, aborts the connection as soon as `</head>` is reached. Saves bandwidth but misses content in the `<body>`. |
+| `jsonLdTypes`| `string[]`| `[]` | An array of `@type` strings (e.g., `['Product']`). If provided, only matching JSON-LD blocks are parsed and extracted. |
 | `flags` | `object` | `{...}` | An object to enable/disable parsing specific fields. All flags are `true` by default. See the list below for all available flags. |
 | `fetch` | `object` | `{}` | `RequestInit` options passed directly to the `fetch` call (e.g., `{ headers: {...} }`). |
 
@@ -205,6 +256,13 @@ You can pass any of these boolean flags in the `flags` object to optimize parsin
 *   `language`
 *   `favicon`
 *   `feeds`
+*   `videos`
+*   `audio`
+*   `oEmbed`
+*   `jsonLd`
+*   `microdata`
+*   `rdfa`
+*   `manifest`
 
 ### Instance Management
 
@@ -237,7 +295,14 @@ console.log(myBot.userAgent); // "MyPersonalBot/2.0"
 | `image` | `string` | The `og:image` or `twitter:image` meta tag. |
 | `favicon` | `string` | The best-quality favicon URL found on the page. |
 | `feeds` | `string[]`| An array of RSS/Atom feed URLs discovered on the page. |
+| `videos` | `string[]`| An array of video source URLs discovered on the page. |
+| `audio` | `string[]`| An array of audio source URLs discovered on the page. |
+| `oEmbed` | `string` | The oEmbed JSON discovery URL, if present. |
 | `meta` | `object` | A key-value object of all meta tags and flattened JSON-LD data. |
+| `jsonLd` | `object[]` | An array of original, un-flattened JSON-LD objects found on the page. |
+| `microdata` | `object[]` | An array of nested Microdata items found on the page. |
+| `rdfa` | `object[]` | An array of nested RDFa entities found on the page. |
+| `manifest` | `object` | The parsed JSON content of the Web App Manifest, if present. |
 | `images` | `string[]`| An array of all absolute image URLs on the page. |
 | `links` | `string[]`| An array of all absolute hyperlink (`<a>`) URLs on the page. |
 | `headers` | `object` | An object containing the final response's HTTP headers. |
@@ -248,7 +313,7 @@ console.log(myBot.userAgent); // "MyPersonalBot/2.0"
 
 (The MIT License)
 
-Copyright (c) 2025 Brahma Dev;
+Copyright (c) 2026 Brahma Dev;
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
