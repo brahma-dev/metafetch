@@ -2,14 +2,16 @@
   "name": "metafetch",
   "description": "Metafetch fetches a given URL's title, description, images, links etc.",
   "version": "5.0.4",
+  "bin": {
+    "metafetch": "dist/cli.js"
+  },
   "homepage": "https://github.com/brahma-dev/metafetch",
   "repository": {
     "type": "git",
     "url": "https://github.com/brahma-dev/metafetch"
   },
   "files": [
-    "dist",
-    "sample.js"
+    "dist"
   ],
   "type": "module",
   "author": "brahma-dev",

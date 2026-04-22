@@ -12,9 +12,11 @@
 
 -   [Key Features](#key-features)
 -   [Installation](#installation)
--   [Usage](#usage)
+-   [CLI Usage](#cli-usage)
+-   [API Usage](#api-usage)
     -   [Basic Example](#basic-example)
     -   [Advanced Example (Rendering SPAs & Retries)](#advanced-example-rendering-spas--retries)
+    -   [Performance Optimization Example](#performance-optimization-example)
 -   [API](#api)
     -   [`metafetch.fetch(url, [options])`](#metafetchfetchurl-options)
     -   [Available Flags](#available-flags)
@@ -51,7 +53,42 @@ npm install metafetch
 
 *Note: **`puppeteer`** is a peer dependency and must be installed separately (`npm install puppeteer`) if you want to use the SPA / client-side rendering feature.*
 
-## Usage
+## CLI Usage
+
+Metafetch comes with a built-in CLI for quick metadata extraction.
+
+```bash
+# Using Node.js (npx)
+npx metafetch https://example.com
+
+# Using Bun (bunx)
+bunx metafetch https://example.com
+
+# With performance optimizations
+npx metafetch https://example.com --head-only --pretty
+```
+# Filtering specific JSON-LD types
+npx metafetch https://example.com --jsonld-types Product,Recipe
+
+# Using rendering for SPAs
+npx metafetch https://example.com --render
+```
+
+### CLI Options
+
+| Option | Description |
+|---|---|
+| `--format, -f <fmt>` | Output format: `json`, `summary`, `kv` (default: `summary` for TTY, `json` otherwise). |
+| `--render` | Enable Puppeteer rendering (requires `puppeteer` to be installed). |
+| `--head-only` | Stop downloading after `</head>` (faster, non-render only). |
+| `--jsonld-types <t>` | Comma-separated list of JSON-LD types to filter. |
+| `--user-agent <ua>` | Custom User-Agent string. |
+| `--flags <f>` | Comma-separated list of flags (e.g., `links=false,images`). |
+| `--pretty` | Pretty-print the JSON output. |
+| `--version`, `-v` | Show version number. |
+| `--help`, `-h` | Show help message. |
+
+## API Usage
 
 ### Basic Example
 
