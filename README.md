@@ -22,6 +22,7 @@
     -   [Available Flags](#available-flags)
 -   [Instance Management](#instance-management)
 -   [Response Data](#response-data)
+-   [AI Agent Skills](SKILL.md)
 -   [License](#license)
 
 ## Key Features
